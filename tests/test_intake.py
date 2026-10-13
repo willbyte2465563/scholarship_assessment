@@ -1,9 +1,10 @@
 import itertools
+import json
 from pathlib import Path
 
 import pytest
 
-from app.intake import COMMUNITY, PERSISTENCE, READINESS, run_intake
+from app.intake import COMMUNITY, PERSISTENCE, READINESS, main, run_intake
 from app.source import BLANK_ID
 from tests.conftest import make_row, make_text, write_csv
 
@@ -182,3 +183,14 @@ def test_real_csv_holds_and_flags():
     assert result["counts"] == {
         "applicants": 60, "held": 7, "ready": 53, "ready_with_flags": 17, "rejected_lines": 0,
     }
+
+
+def test_main_writes_one_line_per_applicant_and_a_summary(tmp_path):
+    path = write_csv(tmp_path / "three.csv", [make_row("C-001", 1), make_row("C-002", 2, essay_text=""), make_row("C-003", 3)])
+    main([str(path), "--out-dir", str(tmp_path / "out")])
+    lines = (tmp_path / "out" / "intake.jsonl").read_text(encoding="utf-8").splitlines()
+    assert [json.loads(line)["applicant_id"] for line in lines] == ["C-001", "C-002", "C-003"]
+    summary = json.loads((tmp_path / "out" / "intake_summary.json").read_text(encoding="utf-8"))
+    assert summary["held"] == [{"applicant_id": "C-002", "holds": ["missing_essay"]}]
+    assert summary["counts"]["ready"] == 2
+    assert "applicants" not in summary

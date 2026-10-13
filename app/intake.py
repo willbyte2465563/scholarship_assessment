@@ -3,10 +3,17 @@
 A hold stops scoring until a person looks; it's for when a criterion can't be judged at all or
 the record can't be trusted. A flag doesn't stop scoring; it tells the reviewer something and
 lowers confidence on the criteria it touches. Nothing is dropped, edited or merged.
+
+    python -m app.intake data/raw/scholarship_candidates.csv
+
+Writes data/derived/intake.jsonl (one applicant per line, with the ref mapping and the view)
+and data/derived/intake_summary.json (counts and who was held or flagged, by ID only).
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import secrets
 from collections import defaultdict
 from collections.abc import Callable
@@ -176,3 +183,45 @@ def run_intake(path: Path, new_ref: Callable[[], str] = _new_ref) -> dict:
         },
         "applicants": applicants,
     }
+
+
+def summarize(result: dict) -> dict:
+    """The run without the views: who was held or flagged, and why, by ID only."""
+    def rules(a: dict, kind: str) -> list[str]:
+        return sorted({e["rule"] for e in a[kind]})
+
+    summary = {k: v for k, v in result.items() if k != "applicants"}
+    summary["held"] = [
+        {"applicant_id": a["applicant_id"], "holds": rules(a, "holds")}
+        for a in result["applicants"] if a["status"] == "held"
+    ]
+    summary["ready_with_flags"] = [
+        {"applicant_id": a["applicant_id"], "flags": rules(a, "flags")}
+        for a in result["applicants"] if a["status"] == "ready" and a["flags"]
+    ]
+    return summary
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("csv", type=Path)
+    parser.add_argument("--out-dir", type=Path, default=Path("data/derived"))
+    args = parser.parse_args(argv)
+
+    result = run_intake(args.csv)
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    with (args.out_dir / "intake.jsonl").open("w", encoding="utf-8") as f:
+        for a in result["applicants"]:
+            f.write(json.dumps(a, ensure_ascii=False) + "\n")
+    (args.out_dir / "intake_summary.json").write_text(
+        json.dumps(summarize(result), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    c = result["counts"]
+    print(
+        f"{c['applicants']} applicants: {c['held']} held, {c['ready']} ready "
+        f"({c['ready_with_flags']} with flags), {c['rejected_lines']} rejected lines -> {args.out_dir}"
+    )
+
+
+if __name__ == "__main__":
+    main()
