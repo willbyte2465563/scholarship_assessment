@@ -194,3 +194,40 @@ def test_full_run_writes_ranking_and_records_the_shortlist(csv_path, tmp_path, m
     assert last["event"] == "batch_ranked" and last["shortlist"] == ["B-003", "B-002", "B-001"]
     assert verify(tmp_path / "audit.jsonl") is None
     assert "B-004 (intake)" in (run_dir / "summary.md").read_text(encoding="utf-8")
+
+
+def test_identical_applications_under_different_names_are_kept_apart(tmp_path, scoring):
+    # Same application, different names: after redaction the views are identical.
+    rows = [make_row("C-001", 1, name="Emily Carter"), make_row("C-002", 1, name="Lakisha Washington"), make_row("C-003", 3)]
+    intake = run_intake(write_csv(tmp_path / "twins.csv", rows))
+    views = {a["applicant_id"]: a["redaction"]["view_sha256"] for a in intake["applicants"]}
+    assert views["C-001"] == views["C-002"]
+    llm = VaryingLLM()
+    records, aggregates, _ = _run(intake, llm, scoring, tmp_path)
+    assert llm.calls == 9
+    assert sorted(r["applicant_id"] for r in records) == ["C-001"] * 3 + ["C-002"] * 3 + ["C-003"] * 3
+    a = _by_id(aggregates)
+    assert a["C-001"]["status"] == a["C-002"]["status"] == "scored"
+    assert len(a["C-001"]["run_totals"]) == len(a["C-002"]["run_totals"]) == 3
+    again, _, _ = _run(intake, Boom(), scoring, tmp_path)  # and both resume from the cache
+    assert sorted(r["applicant_id"] for r in again) == sorted(r["applicant_id"] for r in records)
+
+
+def test_an_applicant_with_the_wrong_number_of_runs_is_held(intake, scoring):
+    extra = [{"applicant_id": "B-001", "run": k, "status": "scored", "scores": dict.fromkeys(CRITERIA, 5),
+              "total": 5.0, "flags": [], "reason": None} for k in (1, 2, 3, 3)]
+    a = _by_id(aggregate(intake, extra, scoring))["B-001"]
+    assert a["status"] == "held" and a["reasons"] == ["expected 3 runs, found 4"]
+
+
+def test_a_resumed_run_keeps_and_records_the_ranking_it_replaces(csv_path, tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-flash")
+    base = ["--csv", str(csv_path), "--runs-dir", str(tmp_path / "runs"), "--audit", str(tmp_path / "audit.jsonl")]
+    assert main(["--yes", *base], llm=VaryingLLM()) == 0
+    run_dir = next((tmp_path / "runs").iterdir())
+    first = json.loads((tmp_path / "audit.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    assert main(["--yes", "--resume", run_dir.name, *base], llm=Boom()) == 0  # nothing left to call
+    second = json.loads((tmp_path / "audit.jsonl").read_text(encoding="utf-8").splitlines()[-1])
+    assert second["supersedes_ranking_sha256"] == first["ranking_sha256"]
+    assert (run_dir / "ranking.superseded-1.json").exists() and (run_dir / "summary.superseded-1.md").exists()
+    assert verify(tmp_path / "audit.jsonl") is None

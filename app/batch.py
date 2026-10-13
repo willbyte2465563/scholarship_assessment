@@ -35,14 +35,16 @@ RUNS_DIR = Path("data/scoring")
 
 
 def call_key(applicant: dict, run: int, scoring: ScoringConfig) -> str:
+    """What went into the call. Two applicants can share it (identical applications under
+    different names redact to the same view), so the cache is indexed by applicant_id too."""
     return fingerprint({
         "view_sha256": applicant["redaction"]["view_sha256"], "prompt_sha256": scoring.prompt_sha256,
         "config_version": scoring.version, "model": scoring.model, "run": run,
     })
 
 
-def load_done(path: Path) -> dict[str, dict]:
-    """Finished calls by key; the last record for a key wins."""
+def load_done(path: Path) -> dict[tuple[str, str], dict]:
+    """Finished calls by (applicant_id, key); the last record for each wins."""
     done = {}
     if path.exists():
         for line in path.read_text(encoding="utf-8").splitlines():
@@ -50,7 +52,7 @@ def load_done(path: Path) -> dict[str, dict]:
                 record = json.loads(line)
             except ValueError:
                 continue  # the last line, cut off by a crash
-            done[record["key"]] = record
+            done[(record["applicant_id"], record["key"])] = record
     return done
 
 
@@ -58,7 +60,8 @@ def planned(intake: dict, scoring: ScoringConfig, done: dict) -> tuple[list, lis
     """(every call this batch needs, the ones not already scored)."""
     ready = [a for a in intake["applicants"] if a["status"] == "ready"]
     calls = [(a, k) for a in ready for k in range(1, scoring.batch["runs_per_applicant"] + 1)]
-    todo = [(a, k) for a, k in calls if done.get(call_key(a, k, scoring), {}).get("status") != "scored"]
+    todo = [(a, k) for a, k in calls
+            if done.get((a["applicant_id"], call_key(a, k, scoring)), {}).get("status") != "scored"]
     return calls, todo
 
 
@@ -85,11 +88,11 @@ def score_all(intake: dict, llm: LLM, scoring: ScoringConfig, log: AuditLog, run
         with lock:
             with calls_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            done[record["key"]] = record
+            done[(record["applicant_id"], record["key"])] = record
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
         list(pool.map(work, todo))
-    return [done[call_key(a, k, scoring)] for a, k in calls]
+    return [done[(a["applicant_id"], call_key(a, k, scoring))] for a, k in calls]
 
 
 def aggregate(intake: dict, records: list[dict], scoring: ScoringConfig) -> list[dict]:
@@ -108,9 +111,10 @@ def aggregate(intake: dict, records: list[dict], scoring: ScoringConfig) -> list
             continue
         runs = sorted(by_id[a["applicant_id"]], key=lambda r: r["run"])
         failed = [r for r in runs if r["status"] != "scored"]
-        if failed or len(runs) < runs_needed:
-            out.append({**base, "status": "held", "stage": "scoring",
-                        "reasons": [f"run {r['run']}: {r['reason']}" for r in failed] or ["incomplete"]})
+        if failed or len(runs) != runs_needed:
+            reasons = [f"run {r['run']}: {r['reason']}" for r in failed] or [
+                f"expected {runs_needed} runs, found {len(runs)}"]
+            out.append({**base, "status": "held", "stage": "scoring", "reasons": reasons})
             continue
         medians = {c: median(r["scores"][c] for r in runs) for c in CRITERIA}
         totals = [r["total"] for r in runs]
@@ -214,6 +218,12 @@ def main(argv: list[str] | None = None, llm: LLM | None = None) -> int:
     meta = {"run": run_id, "prompt_version": scoring.prompt_version, "prompt_sha256": scoring.prompt_sha256,
             "model": scoring.model, "scoring_config": scoring.version, "source_sha256": intake["source"]["sha256"],
             "intake_version": intake["intake_version"], "redaction_version": intake["redaction_version"]}
+    previous = run_dir / "ranking.json"
+    if previous.exists():  # a resumed run replaces an earlier ranking; keep it, and say so in the log
+        n = len(list(run_dir.glob("ranking.superseded-*.json"))) + 1
+        meta["supersedes_ranking_sha256"] = fingerprint(json.loads(previous.read_text(encoding="utf-8"))["ranking"])
+        previous.rename(run_dir / f"ranking.superseded-{n}.json")
+        (run_dir / "summary.md").rename(run_dir / f"summary.superseded-{n}.md")
     ranking_doc = {"meta": meta, **result}
     (run_dir / "ranking.json").write_text(json.dumps(ranking_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (run_dir / "summary.md").write_text(render_summary(meta, result), encoding="utf-8")
