@@ -29,8 +29,9 @@ from app.source import BLANK_ID, ID, SCHEMA, blank, ids, load, sha256, unparseab
 INTAKE_VERSION = "1"
 
 READINESS, NEED, PERSISTENCE, COMMUNITY, PURPOSE = (
-    "academic_readiness", "financial_need", "persistence", "community", "clarity_of_purpose",
+    "academic_readiness", "financial_need", "persistence", "community_contribution", "clarity_of_purpose",
 )
+CRITERIA = (READINESS, NEED, PERSISTENCE, COMMUNITY, PURPOSE)  # the names the scoring prompt uses
 
 # Blank (or unparseable, which counts as blank) means a criterion can't be judged at all.
 HOLD_IF_BLANK = {"essay_text": "missing_essay", "financial_need_statement": "missing_need_statement"}

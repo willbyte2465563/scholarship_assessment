@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "prompt": "prompts/score_v1.md",
+  "temperature": 0.0,
+  "max_attempts": 3,
+  "weights_percent": {
+    "academic_readiness": 30,
+    "financial_need": 25,
+    "persistence": 20,
+    "community_contribution": 15,
+    "clarity_of_purpose": 10
+  }
+}
