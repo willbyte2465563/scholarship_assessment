@@ -1,10 +1,10 @@
-import csv
 import json
-from pathlib import Path
 
 import pytest
 
-from app.profiling import SCHEMA, main, profile, render_markdown
+from app.profiling import main, profile, render_markdown
+from app.source import SCHEMA
+from tests.conftest import make_row as _row, make_text as _text, write_csv as _write
 
 # Distinctive strings that must never show up in the report.
 SECRET_NAME = "Zebulon Quillfeather"
@@ -12,50 +12,8 @@ SECRET_CITY = "Xanadu Springs"
 SECRET_ESSAY_WORD = "plumbussentinel"
 
 
-def _text(seed: int, words: int = 40) -> str:
-    return " ".join(f"word{seed}x{i}" for i in range(words)) + "."
-
-
-def _row(applicant_id: str, seed: int, **overrides) -> dict:
-    row = {
-        "applicant_id": applicant_id,
-        "name": f"Person {seed}",
-        "city": "Springfield",
-        "state": "MO",
-        "zip": "65806",
-        "high_school": f"School {seed}",
-        "school_type": "public",
-        "gpa": "3.50",
-        "gpa_scale": "4.00",
-        "class_rank": "10/200",
-        "test_score": "1200",
-        "intended_major": "Biology",
-        "household_size": "4",
-        "first_generation": "N",
-        "work_hours_per_week": str(seed),
-        "extracurriculars": "Chess club; library volunteer",
-        "community_service_hours": "50",
-        "essay_prompt": "Describe a challenge.",
-        "essay_text": _text(seed),
-        "recommendation_summary": _text(seed + 1000, 12),
-        "financial_need_statement": "Household of four, moderate need.",
-        "submitted_at": "2026-02-01 09:00",
-    }
-    row.update(overrides)
-    return row
-
-
-def _write(path: Path, rows: list[dict], columns: list[str] | None = None) -> Path:
-    columns = columns or list(SCHEMA)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        writer.writerows(rows)
-    return path
-
-
 @pytest.fixture(scope="module")
-def planted(tmp_path_factory) -> dict:
+def problems(tmp_path_factory) -> dict:
     near_copy = _text(2).replace("word2x7", "changed")
     rows = [
         _row("A-001", 1, name=SECRET_NAME, city=SECRET_CITY, essay_text=_text(1) + f" {SECRET_ESSAY_WORD}."),
@@ -75,7 +33,7 @@ def planted(tmp_path_factory) -> dict:
         _row("A-015", 15, high_school="Central High", class_rank="9/310"),
         _row("A-016", 16, high_school="Central High", state="KY", class_rank="9/500"),
     ]
-    p = profile(_write(tmp_path_factory.mktemp("data") / "planted.csv", rows))
+    p = profile(_write(tmp_path_factory.mktemp("data") / "problems.csv", rows))
     return p
 
 
@@ -83,35 +41,35 @@ def _sanity(p: dict, name: str) -> dict:
     return next(s for s in p["sanity"] if s["check"] == name)
 
 
-def test_counts_blanks_and_unparseable_values(planted):
-    assert planted["source"]["rows"] == 16
-    assert planted["columns"]["gpa"]["blank_ids"] == ["A-003"]
-    assert planted["columns"]["class_rank"]["unparseable_ids"] == ["A-006"]
+def test_counts_blanks_and_unparseable_values(problems):
+    assert problems["source"]["rows"] == 16
+    assert problems["columns"]["gpa"]["blank_ids"] == ["A-003"]
+    assert problems["columns"]["class_rank"]["unparseable_ids"] == ["A-006"]
 
 
-def test_rank_check_fails_bad_rank_and_reports_rows_it_could_not_check(planted):
-    rank = _sanity(planted, "rank_within_class")
+def test_rank_check_fails_bad_rank_and_reports_rows_it_could_not_check(problems):
+    rank = _sanity(problems, "rank_within_class")
     assert rank["failed_ids"] == ["A-004"]
     assert rank["could_not_run"] == {"class_rank unparseable": ["A-006"]}
 
 
-def test_gpa_check_reports_blank_gpa_instead_of_skipping_it(planted):
-    gpa = _sanity(planted, "gpa_within_scale")
+def test_gpa_check_reports_blank_gpa_instead_of_skipping_it(problems):
+    gpa = _sanity(problems, "gpa_within_scale")
     assert gpa["failed_ids"] == ["A-005"]
     assert gpa["could_not_run"] == {"gpa blank": ["A-003"]}
 
 
-def test_implausible_test_score(planted):
-    assert _sanity(planted, "test_score_plausible")["failed_ids"] == ["A-012"]
+def test_implausible_test_score(problems):
+    assert _sanity(problems, "test_score_plausible")["failed_ids"] == ["A-012"]
 
 
-def test_class_size_conflict_only_within_the_same_town(planted):
-    check = _sanity(planted, "class_size_consistent_per_school")
+def test_class_size_conflict_only_within_the_same_town(problems):
+    check = _sanity(problems, "class_size_consistent_per_school")
     assert check["failed_groups"] == [["A-014", "A-015"]]
 
 
-def test_duplicates(planted):
-    d = planted["duplicates"]
+def test_duplicates(problems):
+    d = problems["duplicates"]
     assert d["duplicate_applicant_ids"] == ["A-012"]
     assert d["exact_copies_except_id"] == [["A-001", "A-007"]]
     assert {"ids": ["A-001", "A-007"], "also_matching": ["city", "state", "zip", "high_school"]} in d["same_name"]
@@ -120,22 +78,22 @@ def test_duplicates(planted):
     assert ["A-002", "A-008"] in near
 
 
-def test_essay_under_half_the_median_length_is_short(planted):
-    essay = planted["text"]["essay_text"]
+def test_essay_under_half_the_median_length_is_short(problems):
+    essay = problems["text"]["essay_text"]
     assert essay["short_ids"] == ["A-011"]
     assert "possibly_truncated_ids" not in essay
 
 
-def test_instruction_like_text(planted):
-    hits = {(h["id"], h["column"], h["category"]) for h in planted["instruction_like"]}
+def test_instruction_like_text(problems):
+    hits = {(h["id"], h["column"], h["category"]) for h in problems["instruction_like"]}
     assert ("A-009", "recommendation_summary", "override") in hits
     assert ("A-009", "recommendation_summary", "score_demand") in hits
     assert ("A-010", "essay_text", "hidden_characters") in hits
     assert {h[0] for h in hits} == {"A-009", "A-010"}
 
 
-def test_report_has_no_raw_text_or_personal_info(planted):
-    outputs = [render_markdown(planted), json.dumps(planted)]
+def test_report_has_no_raw_text_or_personal_info(problems):
+    outputs = [render_markdown(problems), json.dumps(problems)]
     for out in outputs:
         for secret in (SECRET_NAME, SECRET_CITY, SECRET_ESSAY_WORD, "Ignore previous", "Central High"):
             assert secret.lower() not in out.lower()
