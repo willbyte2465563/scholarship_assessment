@@ -154,15 +154,11 @@ def estimate(cfg: dict, scoring: ScoringConfig, plan: dict) -> dict:
         chars += sum(len(template) + len(plan["ready"][i]["view"]["essay_text"]) for i in plan["rewrites_needed"])
     calls = len(plan["calls"]) + len(plan["rewrites_needed"])
     margin = 1 + est["retry_margin"]
-    tokens_in = chars / est["chars_per_token"] * margin
-    out_low = calls * est["output_tokens_per_call"] * margin
-    out_high = calls * (est["output_tokens_per_call"] + est["thinking_tokens_per_call_high"]) * margin
-
-    def usd(tokens_out: float) -> float:
-        return (tokens_in * price["input_usd_per_million"] + tokens_out * price["output_usd_per_million"]) / 1e6
-
+    tokens_in = chars / est["chars_per_token"]
+    tokens_out = calls * (est["output_tokens_per_call"] + est["thinking_tokens_per_call"])  # thinking bills as output
+    usd = (tokens_in * price["input_usd_per_million"] + tokens_out * price["output_usd_per_million"]) / 1e6
     return {"calls": calls, "calls_with_retries": math.ceil(calls * margin), "input_tokens": round(tokens_in),
-            "output_tokens": [round(out_low), round(out_high)], "usd": [round(usd(out_low), 2), round(usd(out_high), 2)]}
+            "output_tokens": round(tokens_out), "usd": round(usd, 2), "usd_with_retries": round(usd * margin, 2)}
 
 
 def describe(cfg: dict, scoring: ScoringConfig, plan: dict, est: dict, title: str) -> str:
@@ -185,11 +181,11 @@ def describe(cfg: dict, scoring: ScoringConfig, plan: dict, est: dict, title: st
         lines.append(f"  note: {note['eval']} {note['applicant_id']}: {note['note']}")
     lines += [
         "",
-        f"Estimated tokens: ~{est['input_tokens']:,} input, ~{est['output_tokens'][0]:,} to "
-        f"~{est['output_tokens'][1]:,} output (the high end allows "
-        f"{cfg['estimate']['thinking_tokens_per_call_high']:,} thinking tokens per call; real usage is logged)",
-        f"Estimated cost: ${est['usd'][0]:.2f} to ${est['usd'][1]:.2f}, including a "
-        f"{cfg['estimate']['retry_margin']:.0%} retry margin",
+        f"Estimated tokens: ~{est['input_tokens']:,} input, ~{est['output_tokens']:,} output including "
+        f"~{cfg['estimate']['thinking_tokens_per_call']:,} thinking tokens per call "
+        f"({cfg['estimate']['measured_from']})",
+        f"Estimated cost: ${est['usd']:.2f} (up to ${est['usd_with_retries']:.2f} with "
+        f"{cfg['estimate']['retry_margin']:.0%} retries)",
         f"Price: ${price['input_usd_per_million']}/M input, ${price['output_usd_per_million']}/M output for "
         f"{price['model']}. {price['note']}",
         f"Source: {price['source']} (checked {price['checked']})",

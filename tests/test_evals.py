@@ -24,7 +24,8 @@ CFG = {
     "thresholds": {"criterion": 1, "total": 0.5, "need_gap": 2, "readiness_drop": 1, "isolation": 1},
     "pricing": {"model": "gemini-test", "input_usd_per_million": 0.75, "output_usd_per_million": 3.75,
                 "note": "test price", "source": "https://example.test/pricing", "checked": "2026-10-13"},
-    "estimate": {"chars_per_token": 4, "output_tokens_per_call": 500, "thinking_tokens_per_call_high": 2000,
+    "estimate": {"chars_per_token": 4, "output_tokens_per_call": 500, "thinking_tokens_per_call": 1200,
+                 "measured_from": "test",
                  "retry_margin": 0.1},
 }
 NO_FIXED = {"same_application_different_name": [], "same_content_different_fluency": [], "instruction_removed": {}}
@@ -187,7 +188,8 @@ def test_dry_run_estimate_names_its_price_source(intake, raw, scoring):
     plan = plan_suite(CFG, intake, raw, NO_FIXED, rewrites={})
     est = estimate(CFG, scoring, plan)
     assert est["calls"] == 24 + 2
-    assert est["usd"][0] < est["usd"][1]
+    assert est["output_tokens"] == 26 * 1700
+    assert est["usd"] < est["usd_with_retries"]
     text = describe(CFG, scoring, plan, est, "Eval suite")
     assert "https://example.test/pricing" in text and "checked 2026-10-13" in text
     assert "WARNING" not in text
