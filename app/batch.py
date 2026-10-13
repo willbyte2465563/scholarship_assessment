@@ -29,6 +29,7 @@ from app.intake import CRITERIA, run_intake
 from app.llm import LLM, Backoff, GeminiClient
 from app.ranking import build_ranking, noise_band
 from app.redaction import fingerprint
+from app.review import apply_hold_decisions, read_log
 from app.scoring import DEFAULT_AUDIT, DEFAULT_CSV, ScoringConfig, load_config, render_prompt, score_applicant, weighted_total
 
 RUNS_DIR = Path("data/scoring")
@@ -184,7 +185,8 @@ def main(argv: list[str] | None = None, llm: LLM | None = None) -> int:
         return 2
     workers = args.workers or scoring.batch["workers"]
 
-    intake = run_intake(args.csv)
+    # Applicants a reviewer released ("score anyway") join this run; excluded ones stay held.
+    intake = apply_hold_decisions(run_intake(args.csv), read_log(args.audit))
     calls, todo = planned(intake, scoring, load_done(run_dir / "calls.jsonl"))
     held = [a["applicant_id"] for a in intake["applicants"] if a["status"] == "held"]
     chars = sum(len(render_prompt(scoring.prompt, a["view"])) for a, _ in todo)

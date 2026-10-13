@@ -1,0 +1,16 @@
+{# One ranking row. Expects `r`, and `pick` (bool) for a compare checkbox. #}
+<tr>
+  {% if pick %}<td><input type="checkbox" name="ids" value="{{ r.applicant_id }}" aria-label="Compare {{ r.applicant_id }}"></td>{% endif %}
+  <td>{{ r.applicant_id }}</td>
+  <td>{{ r.rank }}{% if r.tied %} <span class="muted">(tied)</span>{% endif %}
+    {% if r.adjusted %}<br><span class="tag warn">adjusted by reviewer, model rank {{ r.model_rank }}</span>{% endif %}</td>
+  <td class="num">{{ "%.2f" % r.total }}{% if r.overridden %}<br><span class="muted">model {{ "%.2f" % r.model_total }}</span>{% endif %}</td>
+  <td class="num">{{ "%.2f" % r.total_spread }}</td>
+  <td>{{ r.shortlist_reason or "" }}</td>
+  <td>
+    {% if r.committee_tie %}<span class="tag bad">tie at #{{ rules.close_call_position }}: committee decides</span>{% endif %}
+    {% if r.close_call %}<span class="tag warn">close call</span>{% endif %}
+    {% for c in r.overridden %}<span class="tag warn">{{ c.replace("_", " ") }} overridden</span>{% endfor %}
+  </td>
+  <td>{% for f in r.intake_flags + r.scoring_flags %}<span class="tag">{{ f.replace("_", " ") }}</span>{% endfor %}</td>
+</tr>

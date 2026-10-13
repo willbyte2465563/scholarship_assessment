@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Final 3{% endblock %}
+{% block content %}
+{% set shortlisted = current | selectattr("shortlisted") | list %}
+{% set tie = current | selectattr("committee_tie") | map(attribute="applicant_id") | list %}
+<h1>Final 3</h1>
+
+{% if final %}
+  {% set snap = {} %}{% for r in final.snapshot.shortlist %}{% set _ = snap.update({r.applicant_id: r}) %}{% endfor %}
+  <div class="notice ok">Recorded by <strong>{{ final.reviewer }}</strong> at {{ final.at }} (audit entry <a href="/audit/{{ final.seq }}">#{{ final.seq }}</a>{% if final.replaces_seq %}, replacing <a href="/audit/{{ final.replaces_seq }}">#{{ final.replaces_seq }}</a>{% endif %}).</div>
+  <table>
+    <tr><th>Applicant</th><th>Name</th><th>Location</th><th>High school</th><th>Rank</th><th class="num">Total</th><th>Marks</th></tr>
+    {% for i in final.applicant_ids %}{% set who = revealed.get(i, {}) %}{% set r = snap.get(i, {}) %}
+    <tr>
+      <td>{{ i }}</td><td>{{ who.name }}</td><td>{{ who.city }}{% if who.state %}, {{ who.state }}{% endif %}</td><td>{{ who.high_school }}</td>
+      <td>{{ r.rank }}{% if r.adjusted %} <span class="tag warn">adjusted by reviewer, model rank {{ r.model_rank }}</span>{% endif %}</td>
+      <td class="num">{{ "%.2f" % r.total if r.total is defined else "" }}</td>
+      <td>{% if r.committee_tie %}<span class="tag bad">tie at #{{ rules.close_call_position }}: committee decides</span>{% endif %}{% if r.close_call %}<span class="tag warn">close call</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p><strong>Reason:</strong> {{ final.reason }}</p>
+  {% if final.acknowledged_tie %}<p class="muted">The reviewer confirmed they settled the tie at #{{ rules.close_call_position }} as the committee.</p>{% endif %}
+  <p class="muted">Names are shown for these three only. The snapshot of the shortlist, overrides and noise band they saw is in the audit entry.</p>
+  <details><summary>Change the final 3 (needs a new record with a reason)</summary>
+{% else %}
+  <p class="muted">Choose exactly three from the current shortlist and say why. Once recorded it's final; a change needs a new record with a reason. Names are revealed for the three only after this.</p>
+{% endif %}
+
+{% if errors %}<div class="notice bad">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+<form method="post" action="/final">
+  <div class="scroll"><table>
+    <tr><th>Pick</th><th>Applicant</th><th>Rank</th><th class="num">Total</th><th class="num">Spread</th><th>Marks</th></tr>
+    {% for r in shortlisted %}
+    <tr>
+      <td><input type="checkbox" name="ids" value="{{ r.applicant_id }}" {% if r.applicant_id in picked %}checked{% endif %} aria-label="Pick {{ r.applicant_id }}"></td>
+      <td>{{ r.applicant_id }}</td>
+      <td>{{ r.rank }}{% if r.tied %} (tied){% endif %}{% if r.adjusted %} <span class="tag warn">adjusted by reviewer, model rank {{ r.model_rank }}</span>{% endif %}</td>
+      <td class="num">{{ "%.2f" % r.total }}</td><td class="num">{{ "%.2f" % r.total_spread }}</td>
+      <td>{% if r.committee_tie %}<span class="tag bad">tie at #{{ rules.close_call_position }}: committee decides</span>{% endif %}{% if r.close_call %}<span class="tag warn">close call</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  <label for="reason"><strong>Reason</strong> (required)</label>
+  <textarea id="reason" name="reason">{{ reason or "" }}</textarea>
+  {% if tie %}
+  <p><label><input type="checkbox" name="acknowledge_tie" value="yes">
+    {{ tie | join(", ") }} are tied at #{{ rules.close_call_position }} with fewer places than people. If my pick includes any of them, I'm settling that tie as the committee, for the reason above.</label></p>
+  {% endif %}
+  <button type="submit">{{ 'Record a replacement final 3' if final else 'Record final 3' }}</button>
+</form>
+{% if final %}</details>{% endif %}
+{% endblock %}

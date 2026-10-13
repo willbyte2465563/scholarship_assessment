@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Shortlist{% endblock %}
+{% block content %}
+{% set shortlisted = current | selectattr("shortlisted") | list %}
+{% set tie = current | selectattr("committee_tie") | map(attribute="applicant_id") | list %}
+<h1>Shortlist ({{ shortlisted | length }})</h1>
+<p class="muted">
+  Ranked by total ({{ run.meta.prompt_version if run else "" }}). Equal totals share a rank and are never broken.
+  Spread is how much the total moved across three runs of the same application. The noise band is {{ run.noise if run else "" }}:
+  the shortlist is the top {{ rules.shortlist_size }} plus anyone within it of #{{ rules.shortlist_size }}, and a
+  <span class="tag warn">close call</span> is within it of #{{ rules.close_call_position }}, either way.
+</p>
+{% if tie %}<div class="notice warn">Tie at #{{ rules.close_call_position }}: {{ tie | join(", ") }} have the same total, with fewer places than people. The rubric leaves this to the committee.</div>{% endif %}
+{% if overrides %}<div class="notice">Reviewer overrides are applied and the list is re-ranked. Anyone whose rank moved shows the model's original rank.</div>{% endif %}
+<form method="get" action="/compare">
+  <div class="scroll"><table>
+    <tr><th>Compare</th><th>Applicant</th><th>Rank</th><th class="num">Total</th><th class="num">Spread</th><th>Why shortlisted</th><th>Marks</th><th>Flags</th></tr>
+    {% for r in shortlisted %}{% set pick = true %}{% include "_row.html" %}{% endfor %}
+  </table></div>
+  <button type="submit">Compare selected (2 to 4)</button>
+</form>
+
+<h2>Full ranking</h2>
+<details>
+  <summary>Show all {{ current | length }} ranked applicants</summary>
+  <div class="scroll"><table>
+    <tr><th>Applicant</th><th>Rank</th><th class="num">Total</th><th class="num">Spread</th><th>Why shortlisted</th><th>Marks</th><th>Flags</th></tr>
+    {% for r in current %}{% set pick = false %}{% include "_row.html" %}{% endfor %}
+  </table></div>
+</details>
+{% endblock %}

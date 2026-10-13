@@ -2,9 +2,6 @@
 
 import dataclasses
 import json
-import re
-import threading
-from collections import defaultdict
 
 import pytest
 
@@ -14,34 +11,7 @@ from app.intake import CRITERIA, run_intake
 from app.llm import Backoff, LLMReply
 from app.scoring import load_config, score_applicant
 from tests.conftest import make_row, write_csv
-from tests.fakes import FakeLLM, good_reply
-
-
-class VaryingLLM:
-    """Thread-safe. Each applicant's runs score base, base+1, base in call order, so the median is
-    base and the spread is 1 whatever order the workers finish in."""
-
-    def __init__(self, raise_for: int | None = None, block_after_first: int | None = None):
-        self.raise_for, self.block_after_first = raise_for, block_after_first
-        self.lock, self.seen, self.calls = threading.Lock(), defaultdict(int), 0
-
-    def generate(self, prompt: str, *, model: str, temperature: float) -> LLMReply:
-        seed = int(re.search(r"word(\d+)x0", prompt).group(1))
-        with self.lock:
-            n = self.seen[seed]
-            self.seen[seed] += 1
-            self.calls += 1
-        if seed == self.raise_for:
-            raise RuntimeError("boom")
-        if seed == self.block_after_first and n >= 1:
-            return LLMReply(None, "blocked: SAFETY")
-        base = seed % 5 + 3
-        return LLMReply(json.dumps(good_reply(scores=(base + (n % 3 == 1),) * len(CRITERIA))), None, "fake")
-
-
-class Boom:
-    def generate(self, *a, **k):
-        raise AssertionError("the model was called")
+from tests.fakes import Boom, FakeLLM, VaryingLLM, good_reply
 
 
 @pytest.fixture
@@ -231,3 +201,11 @@ def test_a_resumed_run_keeps_and_records_the_ranking_it_replaces(csv_path, tmp_p
     assert second["supersedes_ranking_sha256"] == first["ranking_sha256"]
     assert (run_dir / "ranking.superseded-1.json").exists() and (run_dir / "summary.superseded-1.md").exists()
     assert verify(tmp_path / "audit.jsonl") is None
+
+
+def test_an_applicant_released_by_a_reviewer_joins_the_next_run(csv_path, tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-flash")
+    AuditLog(tmp_path / "audit.jsonl").append("hold_released", {"applicant_id": "B-004", "reason": "r", "reviewer": "Rev"})
+    args = ["--csv", str(csv_path), "--runs-dir", str(tmp_path / "runs"), "--audit", str(tmp_path / "audit.jsonl")]
+    assert main(args, llm=Boom()) == 0
+    assert "4 ready, 0 held at intake" in capsys.readouterr().out

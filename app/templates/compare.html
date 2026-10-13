@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Compare{% endblock %}
+{% block content %}
+<h1>Compare {{ ids | join(", ") }}</h1>
+<p class="muted">Median of three runs per criterion, with the spread and each run's score. The rationale and evidence come from a run that scored the median. Overrides keep the model's score; the list re-ranks.</p>
+
+<div class="scroll"><table>
+  <tr><th></th>{% for row in rows %}<th>{{ row.applicant_id }}</th>{% endfor %}</tr>
+  <tr><th>Rank</th>{% for row in rows %}{% set r = row.ranking %}<td>{{ r.rank }}{% if r.tied %} (tied){% endif %}
+    {% if r.adjusted %}<br><span class="tag warn">adjusted by reviewer, model rank {{ r.model_rank }}</span>{% endif %}
+    {% if r.committee_tie %}<br><span class="tag bad">tie at #{{ rules.close_call_position }}: committee decides</span>{% endif %}
+    {% if r.close_call %}<br><span class="tag warn">close call</span>{% endif %}</td>{% endfor %}</tr>
+  <tr><th>Total</th>{% for row in rows %}{% set r = row.ranking %}<td class="num"><strong>{{ "%.2f" % r.total }}</strong>
+    {% if r.overridden %}<br><span class="muted">model {{ "%.2f" % r.model_total }}</span>{% endif %}
+    <br><span class="muted">spread {{ "%.2f" % r.total_spread }}</span></td>{% endfor %}</tr>
+  <tr><th>Flags</th>{% for row in rows %}<td>{% for f in row.ranking.intake_flags + row.ranking.scoring_flags %}<span class="tag">{{ f.replace("_", " ") }}</span>{% endfor %}</td>{% endfor %}</tr>
+  {% for c in criteria %}
+  <tr>
+    <th>{{ c.replace("_", " ") }}</th>
+    {% for row in rows %}{% set x = row.criteria[c] %}
+    <td>
+      <div><strong>{{ x.current }}</strong>{% if x.overridden %} <span class="tag warn">overridden; model {{ x.median }}</span>{% endif %}
+        <span class="muted">· spread {{ x.spread }} · runs {{ x.runs | join(", ") }}{% if x.confidence %} · {{ x.confidence }} confidence{% endif %}</span></div>
+      {% if x.rationale %}<div>{{ x.rationale }}</div>{% else %}<div class="muted">No rationale found for this run.</div>{% endif %}
+      {% if x.evidence %}<ul class="muted" style="margin:4px 0 0 18px;padding:0">{% for e in x.evidence %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      {% if not final %}
+      <details style="margin-top:4px"><summary>Override</summary>
+        <form method="post" action="/override" class="grid" style="margin-top:4px">
+          <input type="hidden" name="applicant_id" value="{{ row.applicant_id }}">
+          <input type="hidden" name="criterion" value="{{ c }}">
+          {% for i in ids %}<input type="hidden" name="ids" value="{{ i }}">{% endfor %}
+          <label>New score (0 to 10) <input type="text" name="score" size="3" inputmode="numeric"></label>
+          <input type="text" name="reason" placeholder="Reason (required)" aria-label="Reason">
+          <div><button type="submit">Save override</button></div>
+        </form>
+      </details>
+      {% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table></div>
+{% if final %}<p class="muted">The final 3 is recorded, so overrides are closed for this run.</p>{% endif %}
+
+<h2>Applications (anonymized)</h2>
+<div class="grid" style="grid-template-columns: repeat({{ rows | length }}, minmax(240px, 1fr))">
+  {% for row in rows %}{% set v = row.view %}
+  <div class="card">
+    <h3>{{ row.applicant_id }}</h3>
+    {% if row.view_changed %}<div class="notice warn">This application changed after it was scored.</div>{% endif %}
+    {% if v %}
+    <table>
+      <tr><th>GPA</th><td>{{ v.gpa if v.gpa is not none else "not given" }}{% if v.gpa_scale %} / {{ v.gpa_scale }}{% endif %}</td></tr>
+      <tr><th>Class rank</th><td>{{ v.class_rank_percentile or "not given" }}</td></tr>
+      <tr><th>Test score</th><td>{{ v.test_score if v.test_score is not none else "not given" }}</td></tr>
+      <tr><th>Household</th><td>{{ v.household_size if v.household_size is not none else "not given" }}</td></tr>
+      <tr><th>First generation</th><td>{{ v.first_generation or "not given" }}</td></tr>
+      <tr><th>Work hours / week</th><td>{{ v.work_hours_per_week if v.work_hours_per_week is not none else "not given" }}</td></tr>
+      <tr><th>Service hours</th><td>{{ v.community_service_hours if v.community_service_hours is not none else "not given" }}</td></tr>
+      <tr><th>Intended major</th><td>{{ v.intended_major or "not given" }}</td></tr>
+      <tr><th>Activities</th><td>{{ v.extracurriculars or "not given" }}</td></tr>
+    </table>
+    <h3>Essay</h3><div class="text">{{ v.essay_text or "not given" }}</div>
+    <h3>Recommendation</h3><div class="text">{{ v.recommendation_summary or "not given" }}</div>
+    <h3>Financial need</h3><div class="text">{{ v.financial_need_statement or "not given" }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -3,6 +3,8 @@
 import csv
 from pathlib import Path
 
+import pytest
+
 from app.source import SCHEMA
 
 
@@ -47,3 +49,30 @@ def write_csv(path: Path, rows: list[dict], columns: list[str] | None = None) ->
         writer.writeheader()
         writer.writerows(rows)
     return path
+
+
+def reviewer_rows() -> list[dict]:
+    """Twenty scorable applicants with distinctive identities, one held at intake, and one
+    recommendation carrying markup. With tests.fakes.VaryingLLM, R-004/009/014/019 tie at the
+    top, so four applicants share #1 and the tie straddles #3."""
+    rows = [
+        make_row(f"R-{s:03d}", s, name=f"Zed{s} Quill{s}", city=f"Town{s}x", high_school=f"Academy{s}x", zip=f"{10000 + s}")
+        for s in range(1, 21)
+    ]
+    rows[1]["recommendation_summary"] = "<script>alert('x')</script> Strong student."
+    rows.append(make_row("R-021", 21, name="Zed21 Quill21", city="Town21x", high_school="Academy21x", essay_text=""))
+    return rows
+
+
+@pytest.fixture
+def scored_run(tmp_path, monkeypatch) -> dict:
+    """A real batch run (fake model) in tmp: ranking, calls and audit log, like production's."""
+    from app.batch import main as batch_main
+    from tests.fakes import VaryingLLM
+
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-flash")
+    paths = {"csv": write_csv(tmp_path / "applicants.csv", reviewer_rows()),
+             "runs": tmp_path / "runs", "audit": tmp_path / "audit.jsonl"}
+    args = ["--yes", "--csv", str(paths["csv"]), "--runs-dir", str(paths["runs"]), "--audit", str(paths["audit"])]
+    assert batch_main(args, llm=VaryingLLM()) == 0
+    return paths

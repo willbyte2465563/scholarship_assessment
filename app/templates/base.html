@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Review{% endblock %} · Hargrove scholarship</title>
+<style>
+  :root { --ink: #1d2127; --muted: #5f6873; --line: #d9dde3; --bg: #ffffff; --soft: #f4f6f8; --accent: #1f5fa8;
+          --warn: #8a5300; --warn-bg: #fff4e0; --bad: #9b1c1c; --bad-bg: #fdecec; --ok: #1d6b38; --ok-bg: #e8f5ec; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+  header { border-bottom: 1px solid var(--line); background: var(--soft); }
+  .bar { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+  .bar strong { margin-right: 8px; }
+  nav a { margin-right: 14px; color: var(--accent); text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  .who { margin-left: auto; display: flex; gap: 6px; align-items: center; color: var(--muted); }
+  main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 4px 0 12px; } h2 { font-size: 18px; margin: 24px 0 8px; } h3 { font-size: 15px; margin: 16px 0 6px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; font-size: 13px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 12px; margin: 1px 2px 1px 0; background: var(--soft); border: 1px solid var(--line); }
+  .tag.warn { background: var(--warn-bg); border-color: #e8c27a; color: var(--warn); }
+  .tag.bad { background: var(--bad-bg); border-color: #e6a3a3; color: var(--bad); }
+  .tag.ok { background: var(--ok-bg); border-color: #9ccfae; color: var(--ok); }
+  .notice { padding: 10px 12px; border-radius: 6px; margin: 8px 0 16px; border: 1px solid var(--line); background: var(--soft); }
+  .notice.ok { background: var(--ok-bg); border-color: #9ccfae; } .notice.bad { background: var(--bad-bg); border-color: #e6a3a3; }
+  .notice.warn { background: var(--warn-bg); border-color: #e8c27a; }
+  input[type=text], textarea, select { font: inherit; padding: 5px 7px; border: 1px solid #b9c0c8; border-radius: 4px; }
+  textarea { width: 100%; min-height: 60px; }
+  button { font: inherit; padding: 5px 12px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 4px; cursor: pointer; }
+  button.secondary { background: #fff; color: var(--accent); }
+  .grid { display: grid; gap: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+  .text { white-space: pre-wrap; background: var(--soft); padding: 8px; border-radius: 4px; }
+  pre { white-space: pre-wrap; word-break: break-word; background: var(--soft); padding: 10px; border-radius: 6px; font-size: 13px; }
+  details summary { cursor: pointer; color: var(--accent); }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <strong>Hargrove review</strong>
+    <nav>
+      <a href="/">Overview</a><a href="/held">Held</a><a href="/shortlist">Shortlist</a><a href="/final">Final 3</a><a href="/audit">Audit log</a>
+    </nav>
+    <form class="who" method="post" action="/reviewer">
+      {% if reviewer %}Reviewing as <strong>{{ reviewer }}</strong>{% else %}<span>Your name:</span>{% endif %}
+      <input type="text" name="name" placeholder="{{ 'Change name' if reviewer else 'Name for the audit log' }}" aria-label="Reviewer name">
+      <button class="secondary" type="submit">{{ 'Change' if reviewer else 'Set' }}</button>
+    </form>
+  </div>
+</header>
+<main>
+  {% if chain_problem %}<div class="notice bad"><strong>Audit chain broken:</strong> {{ chain_problem }}</div>{% endif %}
+  {% if msg %}<div class="notice ok">{{ msg }}</div>{% endif %}
+  {% if not run and request.url.path != "/" %}<div class="notice warn">No scoring run yet. Run <code>python -m app.batch --yes</code> first.</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

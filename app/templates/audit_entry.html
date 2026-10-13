@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Audit entry {{ entry.seq }}{% endblock %}
+{% block content %}
+<h1>Audit entry #{{ entry.seq }}: {{ entry.event }}</h1>
+<p><a href="/audit">Back to the log</a>{% if entry.seq > 1 %} · <a href="/audit/{{ entry.seq - 1 }}">previous</a>{% endif %} · <a href="/audit/{{ entry.seq + 1 }}">next</a></p>
+<pre>{{ entry | tojson(indent=2) }}</pre>
+{% endblock %}

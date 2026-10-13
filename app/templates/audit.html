@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<h1>Audit log</h1>
+{% if not log_exists %}<div class="notice warn">No audit log yet.</div>
+{% elif chain_problem %}<div class="notice bad"><strong>Chain broken:</strong> {{ chain_problem }}</div>
+{% else %}<div class="notice ok"><strong>Chain intact:</strong> all {{ entries | length }} entries verify, each linked to the one before.</div>{% endif %}
+<form method="get" action="/audit">
+  <label>Event <select name="event"><option value="">all</option>
+    {% for e in events %}<option value="{{ e }}" {% if e == event %}selected{% endif %}>{{ e }}</option>{% endfor %}
+  </select></label>
+  <button class="secondary" type="submit">Filter</button>
+  <span class="muted">Newest first, up to 200.</span>
+</form>
+<div class="scroll"><table>
+  <tr><th>#</th><th>When (UTC)</th><th>Event</th><th>Applicant</th><th>Who</th><th>Detail</th></tr>
+  {% for e in shown %}
+  <tr>
+    <td><a href="/audit/{{ e.seq }}">{{ e.seq }}</a></td>
+    <td class="muted">{{ e.at }}</td>
+    <td>{{ e.event }}</td>
+    <td>{{ e.applicant_id or (e.applicant_ids | join(", ") if e.applicant_ids else "") }}</td>
+    <td>{{ e.reviewer or "" }}</td>
+    <td class="muted">
+      {% if e.event == "score_attempt" %}run {{ e.run }} attempt {{ e.attempt }}{% if e.failure %} · {{ e.failure }}{% endif %}{% if e.problems %} · {{ e.problems | length }} problem(s){% endif %}
+      {% elif e.event == "score_result" %}total {{ e.total }}
+      {% elif e.event == "score_override" %}{{ e.criterion }} {{ e.model_score }} → {{ e.score }}: {{ e.reason }}
+      {% elif e.event == "batch_ranked" %}{{ e.shortlist | length }} shortlisted, noise {{ e.noise }}{% if e.supersedes_ranking_sha256 %} · replaces an earlier ranking{% endif %}
+      {% elif e.reason %}{{ e.reason }}{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% endblock %}

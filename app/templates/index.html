@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<h1>Overview</h1>
+{% if not run %}
+  <div class="notice warn">No scoring run yet. Run <code>python -m app.batch --yes</code>, then reload.</div>
+{% else %}
+  {% set shortlisted = current | selectattr("shortlisted") | list %}
+  {% set tie = current | selectattr("committee_tie") | map(attribute="applicant_id") | list %}
+  <p class="muted">Run {{ run.id }} · prompt {{ run.meta.prompt_version }} · model {{ run.meta.model }} · scoring config {{ run.meta.scoring_config }}</p>
+  {% if not log_exists %}<div class="notice warn">No audit log yet.</div>
+  {% elif not chain_problem %}<div class="notice ok">Audit chain intact: all {{ entries | length }} entries verify.</div>{% endif %}
+  <table>
+    <tr><th>Ranked</th><td class="num">{{ current | length }}</td><td class="muted">scored three times each; totals from the per-criterion medians</td></tr>
+    <tr><th>Shortlisted</th><td class="num">{{ shortlisted | length }}</td><td class="muted">top {{ rules.shortlist_size }} plus anyone within the noise band ({{ run.noise }}) of #{{ rules.shortlist_size }}</td></tr>
+    <tr><th>Held</th><td class="num">{{ run.held | length }}</td><td class="muted">not scored; each needs a decision</td></tr>
+    <tr><th>Score overrides</th><td class="num">{{ overrides | length }}</td><td></td></tr>
+    <tr><th>Final 3</th><td>{% if final %}<span class="tag ok">recorded</span>{% else %}<span class="tag">not yet</span>{% endif %}</td><td></td></tr>
+  </table>
+  {% if tie %}<div class="notice warn">Tie at #3: {{ tie | join(", ") }} share the same total. The rubric leaves this to the committee; nothing in the ranking separates them.</div>{% endif %}
+  <h2>How this works</h2>
+  <ol>
+    <li><a href="/held">Held applicants</a>: decide whether each should be scored in the next batch run or excluded.</li>
+    <li><a href="/shortlist">Shortlist</a>: pick 2 to 4 to compare side by side. Override a criterion score there if you disagree, with a reason.</li>
+    <li><a href="/final">Final 3</a>: record exactly three from the shortlist, with a reason. Names are shown only after this.</li>
+  </ol>
+  <p class="muted">You see applicant IDs and the anonymized application only. Every action is written to the <a href="/audit">audit log</a> with your name. There's no login; in production this would be SSO.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Held{% endblock %}
+{% block content %}
+<h1>Held applicants</h1>
+<p class="muted">These weren't scored. "Score anyway" marks an applicant for the next batch run (this page never calls the model). "Exclude" keeps them out. Either way, give a reason.</p>
+{% if not rows %}<p>Nobody is held in this run.</p>{% endif %}
+<table>
+  <tr><th>Applicant</th><th>Held at</th><th>Why</th><th>Decision</th></tr>
+  {% for h in rows %}
+  <tr>
+    <td>{{ h.applicant_id }}</td>
+    <td>{{ h.stage }}</td>
+    <td>{% for r in h.reasons %}<div>{{ r }}</div>{% endfor %}{% for f in h.intake_flags %}<span class="tag warn">{{ f }}</span>{% endfor %}</td>
+    <td>
+      {% if h.decision %}
+        <div>
+          {% if h.decision.event == "hold_released" %}<span class="tag ok">Score anyway (next batch run)</span>{% else %}<span class="tag bad">Excluded</span>{% endif %}
+          <span class="muted">by {{ h.decision.reviewer }}: {{ h.decision.reason }}</span>
+        </div>
+      {% endif %}
+      <form method="post" action="/held/{{ h.applicant_id }}" class="grid" style="margin-top:6px">
+        <div>
+          <label><input type="radio" name="decision" value="release"> Score anyway</label>
+          <label style="margin-left:10px"><input type="radio" name="decision" value="exclude"> Exclude</label>
+        </div>
+        <input type="text" name="reason" placeholder="Reason (required)" aria-label="Reason">
+        <div><button type="submit">{{ 'Change decision' if h.decision else 'Record decision' }}</button></div>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,8 +1,18 @@
-from fastapi import FastAPI
+"""The reviewer UI, served by `docker compose up` on port 8000.
 
-app = FastAPI()
+Paths can be pointed elsewhere with REVIEW_AUDIT_LOG, REVIEW_RUNS_DIR and REVIEW_CSV, for
+example to rehearse the flow against a copy of the audit log.
+"""
 
+import os
+from pathlib import Path
 
-@app.get("/")
-def hello() -> dict[str, str]:
-    return {"message": "Hello, world!"}
+from app.batch import RUNS_DIR
+from app.scoring import DEFAULT_AUDIT, DEFAULT_CSV
+from app.web import create_app
+
+app = create_app(
+    audit_path=Path(os.environ.get("REVIEW_AUDIT_LOG", DEFAULT_AUDIT)),
+    runs_dir=Path(os.environ.get("REVIEW_RUNS_DIR", RUNS_DIR)),
+    csv_path=Path(os.environ.get("REVIEW_CSV", DEFAULT_CSV)),
+)
