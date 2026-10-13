@@ -1,0 +1,852 @@
+{
+  "generated_at": "2026-10-13T13:58:05+00:00",
+  "source": {
+    "path": "data/raw/scholarship_candidates.csv",
+    "sha256": "9ab0fc987839b22ca3e6f7064512483f3c954aeab191a5ed04042102aef39241",
+    "rows": 60,
+    "parse_errors": [],
+    "missing_columns": [],
+    "unexpected_columns": [],
+    "inferred_types": {
+      "applicant_id": "VARCHAR",
+      "name": "VARCHAR",
+      "city": "VARCHAR",
+      "state": "VARCHAR",
+      "zip": "BIGINT",
+      "high_school": "VARCHAR",
+      "school_type": "VARCHAR",
+      "gpa": "DOUBLE",
+      "gpa_scale": "DOUBLE",
+      "class_rank": "VARCHAR",
+      "test_score": "BIGINT",
+      "intended_major": "VARCHAR",
+      "household_size": "BIGINT",
+      "first_generation": "VARCHAR",
+      "work_hours_per_week": "BIGINT",
+      "extracurriculars": "VARCHAR",
+      "community_service_hours": "BIGINT",
+      "essay_prompt": "VARCHAR",
+      "essay_text": "VARCHAR",
+      "recommendation_summary": "VARCHAR",
+      "financial_need_statement": "VARCHAR",
+      "submitted_at": "TIMESTAMP"
+    }
+  },
+  "columns": {
+    "applicant_id": {
+      "expected": "id",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 60
+    },
+    "name": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 58
+    },
+    "city": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 15
+    },
+    "state": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 7
+    },
+    "zip": {
+      "expected": "zip",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 43
+    },
+    "high_school": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 43
+    },
+    "school_type": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "values": {
+        "magnet": 2,
+        "private": 1,
+        "public": 57
+      }
+    },
+    "gpa": {
+      "expected": "number",
+      "blank_ids": [
+        "SCH-037"
+      ],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 2.65,
+        "median": 3.59,
+        "mean": 3.49,
+        "max": 3.97
+      },
+      "distinct": 48
+    },
+    "gpa_scale": {
+      "expected": "number",
+      "blank_ids": [
+        "SCH-037"
+      ],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 4.0,
+        "median": 4.0,
+        "mean": 4.0,
+        "max": 4.0
+      },
+      "values": {
+        "(blank)": 1,
+        "4.00": 59
+      }
+    },
+    "class_rank": {
+      "expected": "rank",
+      "blank_ids": [
+        "SCH-037"
+      ],
+      "unparseable_ids": [],
+      "distinct": 52
+    },
+    "test_score": {
+      "expected": "number",
+      "blank_ids": [
+        "SCH-046"
+      ],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 980.0,
+        "median": 1295.0,
+        "mean": 1274.407,
+        "max": 1520.0
+      },
+      "distinct": 45
+    },
+    "intended_major": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 42
+    },
+    "household_size": {
+      "expected": "number",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 3.0,
+        "median": 4.0,
+        "mean": 4.45,
+        "max": 7.0
+      },
+      "distinct": 5
+    },
+    "first_generation": {
+      "expected": "yes_no",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "values": {
+        "N": 28,
+        "Y": 32
+      }
+    },
+    "work_hours_per_week": {
+      "expected": "number",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 0.0,
+        "median": 14.0,
+        "mean": 13.433,
+        "max": 25.0
+      },
+      "distinct": 17
+    },
+    "extracurriculars": {
+      "expected": "text",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 55
+    },
+    "community_service_hours": {
+      "expected": "number",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "summary": {
+        "min": 0.0,
+        "median": 97.5,
+        "mean": 98.25,
+        "max": 225.0
+      },
+      "distinct": 41
+    },
+    "essay_prompt": {
+      "expected": "label",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 1
+    },
+    "essay_text": {
+      "expected": "text",
+      "blank_ids": [
+        "SCH-034"
+      ],
+      "unparseable_ids": [],
+      "distinct": 52
+    },
+    "recommendation_summary": {
+      "expected": "text",
+      "blank_ids": [
+        "SCH-031"
+      ],
+      "unparseable_ids": [],
+      "distinct": 51
+    },
+    "financial_need_statement": {
+      "expected": "text",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 44
+    },
+    "submitted_at": {
+      "expected": "timestamp",
+      "blank_ids": [],
+      "unparseable_ids": [],
+      "distinct": 60
+    }
+  },
+  "text": {
+    "extracurriculars": {
+      "words": {
+        "min": 4,
+        "p05": 4.0,
+        "median": 6.0,
+        "p95": 9.0,
+        "max": 10
+      },
+      "median_chars": 43.5,
+      "short_ids": []
+    },
+    "essay_text": {
+      "words": {
+        "min": 20,
+        "p05": 55.0,
+        "median": 85.0,
+        "p95": 107.3,
+        "max": 114
+      },
+      "median_chars": 446.0,
+      "short_ids": [
+        "SCH-030"
+      ],
+      "possibly_truncated_ids": [
+        "SCH-030"
+      ]
+    },
+    "recommendation_summary": {
+      "words": {
+        "min": 6,
+        "p05": 6.0,
+        "median": 11.0,
+        "p95": 19.1,
+        "max": 47
+      },
+      "median_chars": 86.0,
+      "short_ids": [],
+      "possibly_truncated_ids": []
+    },
+    "financial_need_statement": {
+      "words": {
+        "min": 4,
+        "p05": 5.0,
+        "median": 7.0,
+        "p95": 10.05,
+        "max": 14
+      },
+      "median_chars": 61.0,
+      "short_ids": [],
+      "possibly_truncated_ids": []
+    }
+  },
+  "sanity": [
+    {
+      "check": "rank_within_class",
+      "rule": "class rank is between 1 and class size",
+      "failed_ids": [],
+      "could_not_run": {
+        "class_rank blank": [
+          "SCH-037"
+        ]
+      }
+    },
+    {
+      "check": "gpa_within_scale",
+      "rule": "GPA is between 0 and its scale, and the scale is positive",
+      "failed_ids": [],
+      "could_not_run": {
+        "gpa blank": [
+          "SCH-037"
+        ],
+        "gpa_scale blank": [
+          "SCH-037"
+        ]
+      }
+    },
+    {
+      "check": "test_score_plausible",
+      "rule": "test score is a whole number in the ACT (1-36) or SAT (400-1600) range",
+      "failed_ids": [],
+      "could_not_run": {
+        "test_score blank": [
+          "SCH-046"
+        ]
+      }
+    },
+    {
+      "check": "household_size_valid",
+      "rule": "household size is a whole number of at least 1",
+      "failed_ids": [],
+      "could_not_run": {}
+    },
+    {
+      "check": "work_hours_valid",
+      "rule": "work hours per week are between 0 and 168",
+      "failed_ids": [],
+      "could_not_run": {}
+    },
+    {
+      "check": "service_hours_valid",
+      "rule": "community service hours are not negative",
+      "failed_ids": [],
+      "could_not_run": {}
+    },
+    {
+      "check": "class_size_consistent_per_school",
+      "rule": "applicants from the same high school report the same class size",
+      "failed_ids": [],
+      "failed_groups": [],
+      "could_not_run": {
+        "class_rank blank or unparseable": [
+          "SCH-037"
+        ]
+      }
+    }
+  ],
+  "duplicates": {
+    "duplicate_applicant_ids": [],
+    "exact_copies_except_id": [],
+    "same_name": [
+      {
+        "ids": [
+          "SCH-004",
+          "SCH-059"
+        ],
+        "also_matching": [
+          "city",
+          "state",
+          "zip"
+        ]
+      },
+      {
+        "ids": [
+          "SCH-026",
+          "SCH-060"
+        ],
+        "also_matching": [
+          "city",
+          "state",
+          "zip"
+        ]
+      }
+    ],
+    "same_numbers": [
+      {
+        "ids": [
+          "SCH-011",
+          "SCH-012"
+        ],
+        "same_name": false,
+        "same_essay": true
+      },
+      {
+        "ids": [
+          "SCH-013",
+          "SCH-014"
+        ],
+        "same_name": false,
+        "same_essay": true
+      },
+      {
+        "ids": [
+          "SCH-015",
+          "SCH-016"
+        ],
+        "same_name": false,
+        "same_essay": true
+      },
+      {
+        "ids": [
+          "SCH-022",
+          "SCH-023"
+        ],
+        "same_name": false,
+        "same_essay": false
+      },
+      {
+        "ids": [
+          "SCH-024",
+          "SCH-025"
+        ],
+        "same_name": false,
+        "same_essay": false
+      },
+      {
+        "ids": [
+          "SCH-026",
+          "SCH-060"
+        ],
+        "same_name": true,
+        "same_essay": true
+      }
+    ],
+    "near_identical": {
+      "essay_text": {
+        "pairs": [
+          {
+            "ids": [
+              "SCH-004",
+              "SCH-059"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-011",
+              "SCH-012"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-013",
+              "SCH-014"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-015",
+              "SCH-016"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-017",
+              "SCH-018"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-019",
+              "SCH-020"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-026",
+              "SCH-060"
+            ],
+            "jaccard": 1.0
+          }
+        ],
+        "could_not_run": {
+          "essay_text blank": [
+            "SCH-034"
+          ]
+        }
+      },
+      "recommendation_summary": {
+        "pairs": [
+          {
+            "ids": [
+              "SCH-004",
+              "SCH-059"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-011",
+              "SCH-012"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-013",
+              "SCH-014"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-015",
+              "SCH-016"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-017",
+              "SCH-018"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-022",
+              "SCH-023"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-024",
+              "SCH-025"
+            ],
+            "jaccard": 1.0
+          },
+          {
+            "ids": [
+              "SCH-026",
+              "SCH-060"
+            ],
+            "jaccard": 1.0
+          }
+        ],
+        "could_not_run": {
+          "recommendation_summary blank": [
+            "SCH-031"
+          ]
+        }
+      }
+    }
+  },
+  "instruction_like": [
+    {
+      "id": "SCH-041",
+      "column": "recommendation_summary",
+      "category": "override"
+    }
+  ],
+  "findings": [
+    {
+      "area": "missing",
+      "message": "gpa: 1 blank",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "missing",
+      "message": "gpa_scale: 1 blank",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "missing",
+      "message": "class_rank: 1 blank",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "missing",
+      "message": "test_score: 1 blank",
+      "ids": [
+        "SCH-046"
+      ]
+    },
+    {
+      "area": "missing",
+      "message": "essay_text: 1 blank",
+      "ids": [
+        "SCH-034"
+      ]
+    },
+    {
+      "area": "missing",
+      "message": "recommendation_summary: 1 blank",
+      "ids": [
+        "SCH-031"
+      ]
+    },
+    {
+      "area": "text",
+      "message": "essay_text: 1 under half the median length",
+      "ids": [
+        "SCH-030"
+      ]
+    },
+    {
+      "area": "text",
+      "message": "essay_text: 1 may be truncated (no closing punctuation, or trailing whitespace)",
+      "ids": [
+        "SCH-030"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "rank_within_class: couldn't run for 1 (class_rank blank)",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "gpa_within_scale: couldn't run for 1 (gpa blank)",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "gpa_within_scale: couldn't run for 1 (gpa_scale blank)",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "test_score_plausible: couldn't run for 1 (test_score blank)",
+      "ids": [
+        "SCH-046"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "class_size_consistent_per_school: couldn't run for 1 (class_rank blank or unparseable)",
+      "ids": [
+        "SCH-037"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same name; also matching: city, state, zip",
+      "ids": [
+        "SCH-004",
+        "SCH-059"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same name; also matching: city, state, zip",
+      "ids": [
+        "SCH-026",
+        "SCH-060"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: no, same essay: yes)",
+      "ids": [
+        "SCH-011",
+        "SCH-012"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: no, same essay: yes)",
+      "ids": [
+        "SCH-013",
+        "SCH-014"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: no, same essay: yes)",
+      "ids": [
+        "SCH-015",
+        "SCH-016"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: no, same essay: no)",
+      "ids": [
+        "SCH-022",
+        "SCH-023"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: no, same essay: no)",
+      "ids": [
+        "SCH-024",
+        "SCH-025"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "same values in every numeric/profile field (same name: yes, same essay: yes)",
+      "ids": [
+        "SCH-026",
+        "SCH-060"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-004",
+        "SCH-059"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-011",
+        "SCH-012"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-013",
+        "SCH-014"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-015",
+        "SCH-016"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-017",
+        "SCH-018"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-019",
+        "SCH-020"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "essay_text near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-026",
+        "SCH-060"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "essay_text near-duplicate check couldn't run for 1 (essay_text blank)",
+      "ids": [
+        "SCH-034"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-004",
+        "SCH-059"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-011",
+        "SCH-012"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-013",
+        "SCH-014"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-015",
+        "SCH-016"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-017",
+        "SCH-018"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-022",
+        "SCH-023"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-024",
+        "SCH-025"
+      ]
+    },
+    {
+      "area": "duplicates",
+      "message": "recommendation_summary near-identical (Jaccard 1.0)",
+      "ids": [
+        "SCH-026",
+        "SCH-060"
+      ]
+    },
+    {
+      "area": "could not check",
+      "message": "recommendation_summary near-duplicate check couldn't run for 1 (recommendation_summary blank)",
+      "ids": [
+        "SCH-031"
+      ]
+    },
+    {
+      "area": "instruction-like",
+      "message": "recommendation_summary: matches 'override' pattern",
+      "ids": [
+        "SCH-041"
+      ]
+    }
+  ]
+}
