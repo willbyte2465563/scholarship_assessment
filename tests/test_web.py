@@ -256,3 +256,55 @@ def test_final_page_warns_when_the_ranking_changed_after_it_was_recorded(client,
     assert "recorded against an earlier ranking" in page
     assert "Zed3 Quill3" in page  # the recorded decision itself is unchanged
     assert [e["event"] for e in log_entries()].count("final_3_recorded") == 1
+
+
+# Demo mode (a fresh clone has no real run)
+
+
+def _demo_app(scored_run, tmp_path, with_real_run=False):
+    import shutil
+
+    demo = tmp_path / "demo"
+    shutil.copytree(scored_run["runs"], demo / "scoring")
+    shutil.copyfile(scored_run["audit"], demo / "audit.jsonl")
+    app = create_app(audit_path=tmp_path / "real-audit.jsonl",
+                     runs_dir=scored_run["runs"] if with_real_run else tmp_path / "no-runs",
+                     csv_path=scored_run["csv"], demo_dir=demo, demo_audit_copy=tmp_path / "demo-audit.jsonl")
+    c = TestClient(app, follow_redirects=False)
+    c.cookies.set("reviewer", "Rev")
+    return c, demo
+
+
+def test_with_no_real_run_the_demo_is_shown_and_labelled(scored_run, tmp_path):
+    c, demo = _demo_app(scored_run, tmp_path)
+    run_id = next((demo / "scoring").iterdir()).name
+    label = f"demo run (recorded {run_id[:4]}-{run_id[4:6]}-{run_id[6:8]}, score_v2)"
+    for path in PAGES:
+        page = c.get(path)
+        assert page.status_code == 200 and label in page.text, path
+
+
+def test_actions_on_the_demo_never_touch_the_committed_demo_files(scored_run, tmp_path):
+    c, demo = _demo_app(scored_run, tmp_path)
+    committed = (demo / "audit.jsonl").read_bytes()
+    assert c.post("/held/R-021", data={"decision": "release", "reason": "Trying it out."}).status_code == 303
+    assert (demo / "audit.jsonl").read_bytes() == committed
+    copy = tmp_path / "demo-audit.jsonl"
+    assert json.loads(copy.read_text(encoding="utf-8").splitlines()[-1])["event"] == "hold_released"
+    assert verify(copy) is None
+    assert not (tmp_path / "real-audit.jsonl").exists()
+    assert "can't be rescored from here" in c.get("/").text
+
+
+def test_a_real_run_always_wins_over_the_demo(scored_run, tmp_path):
+    c, _ = _demo_app(scored_run, tmp_path, with_real_run=True)
+    assert "demo run" not in c.get("/").text
+
+
+def test_the_ui_says_scoring_needs_a_key(client, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    assert "No <code>GEMINI_API_KEY</code> is set" in client.get("/").text
+    monkeypatch.setenv("GEMINI_API_KEY", "your-key-here")  # the placeholder from .env.example
+    assert "No <code>GEMINI_API_KEY</code> is set" in client.get("/").text
+    monkeypatch.setenv("GEMINI_API_KEY", "a-real-looking-key")
+    assert "No <code>GEMINI_API_KEY</code> is set" not in client.get("/").text

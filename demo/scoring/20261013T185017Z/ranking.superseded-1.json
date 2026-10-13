@@ -1,0 +1,1810 @@
+{
+  "meta": {
+    "run": "20261013T185017Z",
+    "prompt_version": "score_v2",
+    "prompt_sha256": "1b5ebb6327fcc60615f747c1b0045a3c4c173d699e327bd4e4f4a17b5010aa58",
+    "model": "gemini-3.8-flash",
+    "scoring_config": "3",
+    "source_sha256": "9ab0fc987839b22ca3e6f7064512483f3c954aeab191a5ed04042102aef39241",
+    "intake_version": "1",
+    "redaction_version": "1"
+  },
+  "noise": 0.45,
+  "ranking": [
+    {
+      "applicant_id": "SCH-003",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 7,
+        "persistence": 7,
+        "community_contribution": 8,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        7.85,
+        7.85,
+        7.95
+      ],
+      "total_spread": 0.1,
+      "total": 7.85,
+      "scoring_flags": [],
+      "rank": 1,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-005",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 7,
+        "persistence": 8,
+        "community_contribution": 6,
+        "clarity_of_purpose": 9
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.85,
+        7.85,
+        7.85
+      ],
+      "total_spread": 0.0,
+      "total": 7.85,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 1,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-008",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 6,
+        "persistence": 8,
+        "community_contribution": 8,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        7.65,
+        7.8,
+        7.8
+      ],
+      "total_spread": 0.15,
+      "total": 7.8,
+      "scoring_flags": [],
+      "rank": 3,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": true
+    },
+    {
+      "applicant_id": "SCH-009",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 6,
+        "persistence": 8,
+        "community_contribution": 8,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.8,
+        7.65,
+        7.8
+      ],
+      "total_spread": 0.15,
+      "total": 7.8,
+      "scoring_flags": [],
+      "rank": 3,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": true
+    },
+    {
+      "applicant_id": "SCH-010",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 8,
+        "persistence": 6,
+        "community_contribution": 7,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.75,
+        7.5,
+        7.95
+      ],
+      "total_spread": 0.45,
+      "total": 7.75,
+      "scoring_flags": [],
+      "rank": 5,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-033",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 8,
+        "persistence": 7,
+        "community_contribution": 8,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.5,
+        7.5,
+        7.3
+      ],
+      "total_spread": 0.2,
+      "total": 7.5,
+      "scoring_flags": [],
+      "rank": 6,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": true,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-007",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 6,
+        "persistence": 8,
+        "community_contribution": 8,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 2
+      },
+      "run_totals": [
+        7.3,
+        7.2,
+        7.4
+      ],
+      "total_spread": 0.2,
+      "total": 7.3,
+      "scoring_flags": [],
+      "rank": 7,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-002",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 5,
+        "persistence": 8,
+        "community_contribution": 8,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.9,
+        7.25,
+        7.15
+      ],
+      "total_spread": 0.35,
+      "total": 7.25,
+      "scoring_flags": [],
+      "rank": 8,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-016",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7.0,
+        "financial_need": 7.0,
+        "persistence": 7.0,
+        "community_contribution": 8.0,
+        "clarity_of_purpose": 8.0
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.25,
+        7.25,
+        7.25,
+        7.25
+      ],
+      "total_spread": 0.0,
+      "total": 7.25,
+      "scoring_flags": [],
+      "rank": 8,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-019",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 6,
+        "persistence": 8,
+        "community_contribution": 7,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        7.15,
+        7.4,
+        7.25
+      ],
+      "total_spread": 0.25,
+      "total": 7.15,
+      "scoring_flags": [],
+      "rank": 10,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-028",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 7,
+        "persistence": 8,
+        "community_contribution": 8,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        7.0,
+        7.25,
+        7.15
+      ],
+      "total_spread": 0.25,
+      "total": 7.15,
+      "scoring_flags": [],
+      "rank": 10,
+      "tied": true,
+      "shortlisted": true,
+      "shortlist_reason": "top 10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-029",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 7,
+        "persistence": 6,
+        "community_contribution": 6,
+        "clarity_of_purpose": 7
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.85,
+        6.65,
+        6.95
+      ],
+      "total_spread": 0.3,
+      "total": 6.95,
+      "scoring_flags": [],
+      "rank": 12,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "within noise of #10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-018",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 7,
+        "persistence": 6,
+        "community_contribution": 5,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.9,
+        6.9,
+        6.6
+      ],
+      "total_spread": 0.3,
+      "total": 6.9,
+      "scoring_flags": [],
+      "rank": 13,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "within noise of #10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-001",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 6,
+        "persistence": 7,
+        "community_contribution": 6,
+        "clarity_of_purpose": 3
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        7.05,
+        6.45,
+        6.8
+      ],
+      "total_spread": 0.6,
+      "total": 6.8,
+      "scoring_flags": [],
+      "rank": 14,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "within noise of #10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-023",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 6,
+        "persistence": 7,
+        "community_contribution": 7,
+        "clarity_of_purpose": 4
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.75,
+        6.65,
+        6.55
+      ],
+      "total_spread": 0.2,
+      "total": 6.75,
+      "scoring_flags": [],
+      "rank": 15,
+      "tied": false,
+      "shortlisted": true,
+      "shortlist_reason": "within noise of #10",
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-024",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 7,
+        "persistence": 5,
+        "community_contribution": 6,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        6.55,
+        6.55,
+        6.4
+      ],
+      "total_spread": 0.15,
+      "total": 6.55,
+      "scoring_flags": [],
+      "rank": 16,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-038",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 6,
+        "persistence": 6,
+        "community_contribution": 7,
+        "clarity_of_purpose": 4
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.55,
+        6.55,
+        6.65
+      ],
+      "total_spread": 0.1,
+      "total": 6.55,
+      "scoring_flags": [],
+      "rank": 16,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-022",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 6,
+        "persistence": 7,
+        "community_contribution": 6,
+        "clarity_of_purpose": 3
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.6,
+        6.5,
+        6.7
+      ],
+      "total_spread": 0.2,
+      "total": 6.5,
+      "scoring_flags": [],
+      "rank": 18,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-025",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 7,
+        "persistence": 5,
+        "community_contribution": 5,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        6.4,
+        6.55,
+        6.4
+      ],
+      "total_spread": 0.15,
+      "total": 6.4,
+      "scoring_flags": [],
+      "rank": 19,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-042",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 5,
+        "persistence": 7,
+        "community_contribution": 5,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.3,
+        6.15,
+        6.0
+      ],
+      "total_spread": 0.3,
+      "total": 6.3,
+      "scoring_flags": [],
+      "rank": 20,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-054",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 6,
+        "financial_need": 7,
+        "persistence": 7,
+        "community_contribution": 5,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        6.2,
+        6.2,
+        5.9
+      ],
+      "total_spread": 0.3,
+      "total": 6.2,
+      "scoring_flags": [],
+      "rank": 21,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-057",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 5,
+        "financial_need": 7,
+        "persistence": 6,
+        "community_contribution": 6,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.05,
+        6.0,
+        6.15
+      ],
+      "total_spread": 0.15,
+      "total": 6.15,
+      "scoring_flags": [],
+      "rank": 22,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-021",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 3,
+        "persistence": 7,
+        "community_contribution": 7,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        6.1,
+        6.3,
+        6.1
+      ],
+      "total_spread": 0.2,
+      "total": 6.1,
+      "scoring_flags": [],
+      "rank": 23,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-044",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 6,
+        "persistence": 5,
+        "community_contribution": 6,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        6.0,
+        5.85,
+        6.1
+      ],
+      "total_spread": 0.25,
+      "total": 6.1,
+      "scoring_flags": [],
+      "rank": 23,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-041",
+      "intake_flags": [
+        "instruction_like_text"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 5,
+        "persistence": 6,
+        "community_contribution": 4,
+        "clarity_of_purpose": 8
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        6.1,
+        5.95,
+        5.75
+      ],
+      "total_spread": 0.35,
+      "total": 5.95,
+      "scoring_flags": [],
+      "rank": 25,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-006",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 9,
+        "financial_need": 4,
+        "persistence": 5,
+        "community_contribution": 4,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 2
+      },
+      "run_totals": [
+        6.05,
+        5.85,
+        6.1
+      ],
+      "total_spread": 0.25,
+      "total": 5.9,
+      "scoring_flags": [],
+      "rank": 26,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-040",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 5,
+        "persistence": 6,
+        "community_contribution": 6,
+        "clarity_of_purpose": 4
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.85,
+        5.7,
+        6.6
+      ],
+      "total_spread": 0.9,
+      "total": 5.85,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 27,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-031",
+      "intake_flags": [
+        "missing_recommendation_summary"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 4,
+        "persistence": 6,
+        "community_contribution": 6,
+        "clarity_of_purpose": 4
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        5.6,
+        5.35,
+        5.9
+      ],
+      "total_spread": 0.55,
+      "total": 5.6,
+      "scoring_flags": [],
+      "rank": 28,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-043",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 6,
+        "financial_need": 4,
+        "persistence": 7,
+        "community_contribution": 5,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.25,
+        5.45,
+        5.45
+      ],
+      "total_spread": 0.2,
+      "total": 5.45,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 29,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-051",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 5,
+        "financial_need": 6,
+        "persistence": 5,
+        "community_contribution": 5,
+        "clarity_of_purpose": 7
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.35,
+        5.15,
+        5.45
+      ],
+      "total_spread": 0.3,
+      "total": 5.45,
+      "scoring_flags": [],
+      "rank": 29,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-036",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 5,
+        "persistence": 4,
+        "community_contribution": 5,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.4,
+        5.4,
+        5.6
+      ],
+      "total_spread": 0.2,
+      "total": 5.4,
+      "scoring_flags": [],
+      "rank": 31,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-039",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 6,
+        "financial_need": 5,
+        "persistence": 5,
+        "community_contribution": 5,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.3,
+        5.3,
+        5.3
+      ],
+      "total_spread": 0.0,
+      "total": 5.3,
+      "scoring_flags": [],
+      "rank": 32,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-027",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 2,
+        "persistence": 6,
+        "community_contribution": 5,
+        "clarity_of_purpose": 3
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        5.0,
+        5.15,
+        4.95
+      ],
+      "total_spread": 0.2,
+      "total": 5.15,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 33,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-045",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 4,
+        "persistence": 2,
+        "community_contribution": 6,
+        "clarity_of_purpose": 7
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        5.1,
+        5.1,
+        5.2
+      ],
+      "total_spread": 0.1,
+      "total": 5.1,
+      "scoring_flags": [],
+      "rank": 34,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-020",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 1,
+        "persistence": 6,
+        "community_contribution": 4,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.95,
+        5.05,
+        5.4
+      ],
+      "total_spread": 0.45,
+      "total": 5.05,
+      "scoring_flags": [],
+      "rank": 35,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-047",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 3,
+        "financial_need": 8,
+        "persistence": 5,
+        "community_contribution": 4,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        5.0,
+        5.0,
+        5.15
+      ],
+      "total_spread": 0.15,
+      "total": 5.0,
+      "scoring_flags": [],
+      "rank": 36,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-032",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 2,
+        "persistence": 4,
+        "community_contribution": 5,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        4.95,
+        4.95,
+        4.95
+      ],
+      "total_spread": 0.0,
+      "total": 4.95,
+      "scoring_flags": [],
+      "rank": 37,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-014",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7.0,
+        "financial_need": 2.0,
+        "persistence": 5.0,
+        "community_contribution": 6.0,
+        "clarity_of_purpose": 4.0
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.9,
+        4.9,
+        4.4,
+        4.4,
+        4.9,
+        4.9
+      ],
+      "total_spread": 0.5,
+      "total": 4.9,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 38,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-049",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 3,
+        "financial_need": 8,
+        "persistence": 5,
+        "community_contribution": 5,
+        "clarity_of_purpose": 2
+      },
+      "spread": {
+        "academic_readiness": 1,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        4.35,
+        4.85,
+        4.85
+      ],
+      "total_spread": 0.5,
+      "total": 4.85,
+      "scoring_flags": [],
+      "rank": 39,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-012",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 6.0,
+        "financial_need": 4.0,
+        "persistence": 5.0,
+        "community_contribution": 4.5,
+        "clarity_of_purpose": 3.0
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        4.7,
+        4.7,
+        4.85,
+        4.85
+      ],
+      "total_spread": 0.15,
+      "total": 4.775,
+      "scoring_flags": [],
+      "rank": 40,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-035",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 8,
+        "financial_need": 2,
+        "persistence": 4,
+        "community_contribution": 5,
+        "clarity_of_purpose": 2
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.65,
+        4.65,
+        4.5
+      ],
+      "total_spread": 0.15,
+      "total": 4.65,
+      "scoring_flags": [],
+      "rank": 41,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-056",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 3,
+        "financial_need": 6,
+        "persistence": 4,
+        "community_contribution": 5,
+        "clarity_of_purpose": 7
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        4.2,
+        4.65,
+        4.65
+      ],
+      "total_spread": 0.45,
+      "total": 4.65,
+      "scoring_flags": [],
+      "rank": 41,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-017",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 7,
+        "financial_need": 1,
+        "persistence": 4,
+        "community_contribution": 4,
+        "clarity_of_purpose": 7
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.65,
+        4.45,
+        4.8
+      ],
+      "total_spread": 0.35,
+      "total": 4.45,
+      "scoring_flags": [],
+      "rank": 43,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-048",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 4,
+        "financial_need": 5,
+        "persistence": 4,
+        "community_contribution": 3,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        4.3,
+        4.3,
+        4.3
+      ],
+      "total_spread": 0.0,
+      "total": 4.3,
+      "scoring_flags": [
+        "gendered_pronoun_in_rationale"
+      ],
+      "rank": 44,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-053",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 3,
+        "financial_need": 5,
+        "persistence": 6,
+        "community_contribution": 3,
+        "clarity_of_purpose": 5
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.0,
+        4.3,
+        4.3
+      ],
+      "total_spread": 0.3,
+      "total": 4.3,
+      "scoring_flags": [],
+      "rank": 44,
+      "tied": true,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-052",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 4,
+        "financial_need": 5,
+        "persistence": 4,
+        "community_contribution": 2,
+        "clarity_of_purpose": 6
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        4.15,
+        4.15,
+        4.4
+      ],
+      "total_spread": 0.25,
+      "total": 4.15,
+      "scoring_flags": [],
+      "rank": 46,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-055",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 4,
+        "financial_need": 4,
+        "persistence": 5,
+        "community_contribution": 2,
+        "clarity_of_purpose": 3
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        3.8,
+        3.8,
+        3.8
+      ],
+      "total_spread": 0.0,
+      "total": 3.8,
+      "scoring_flags": [],
+      "rank": 47,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-050",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 2,
+        "financial_need": 5,
+        "persistence": 2,
+        "community_contribution": 3,
+        "clarity_of_purpose": 3
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 1,
+        "persistence": 0,
+        "community_contribution": 0,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        3.0,
+        2.75,
+        3.0
+      ],
+      "total_spread": 0.25,
+      "total": 3.0,
+      "scoring_flags": [],
+      "rank": 48,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-058",
+      "intake_flags": [],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 3,
+        "financial_need": 4,
+        "persistence": 2,
+        "community_contribution": 3,
+        "clarity_of_purpose": 1
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 0,
+        "community_contribution": 1,
+        "clarity_of_purpose": 0
+      },
+      "run_totals": [
+        2.85,
+        2.85,
+        2.7
+      ],
+      "total_spread": 0.15,
+      "total": 2.85,
+      "scoring_flags": [],
+      "rank": 49,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    },
+    {
+      "applicant_id": "SCH-046",
+      "intake_flags": [
+        "missing_test_score"
+      ],
+      "status": "scored",
+      "scores": {
+        "academic_readiness": 2,
+        "financial_need": 4,
+        "persistence": 3,
+        "community_contribution": 2,
+        "clarity_of_purpose": 2
+      },
+      "spread": {
+        "academic_readiness": 0,
+        "financial_need": 0,
+        "persistence": 1,
+        "community_contribution": 0,
+        "clarity_of_purpose": 1
+      },
+      "run_totals": [
+        2.6,
+        2.7,
+        2.5
+      ],
+      "total_spread": 0.2,
+      "total": 2.7,
+      "scoring_flags": [],
+      "rank": 50,
+      "tied": false,
+      "shortlisted": false,
+      "shortlist_reason": null,
+      "close_call": false,
+      "committee_tie": false
+    }
+  ],
+  "held": [
+    {
+      "applicant_id": "SCH-004",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "same_person: same name and location as SCH-059"
+      ]
+    },
+    {
+      "applicant_id": "SCH-011",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "held",
+      "stage": "scoring",
+      "reasons": [
+        "incomplete"
+      ]
+    },
+    {
+      "applicant_id": "SCH-013",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "held",
+      "stage": "scoring",
+      "reasons": [
+        "incomplete"
+      ]
+    },
+    {
+      "applicant_id": "SCH-015",
+      "intake_flags": [
+        "near_identical_application"
+      ],
+      "status": "held",
+      "stage": "scoring",
+      "reasons": [
+        "incomplete"
+      ]
+    },
+    {
+      "applicant_id": "SCH-026",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "same_person: same name and location as SCH-060"
+      ]
+    },
+    {
+      "applicant_id": "SCH-030",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "short_essay: essay is under half the median essay length"
+      ]
+    },
+    {
+      "applicant_id": "SCH-034",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "missing_essay: essay_text is blank or unparseable"
+      ]
+    },
+    {
+      "applicant_id": "SCH-037",
+      "intake_flags": [
+        "missing_gpa_scale"
+      ],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "missing_gpa_and_rank: both gpa and class_rank are blank or unparseable"
+      ]
+    },
+    {
+      "applicant_id": "SCH-059",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "same_person: same name and location as SCH-004"
+      ]
+    },
+    {
+      "applicant_id": "SCH-060",
+      "intake_flags": [],
+      "status": "held",
+      "stage": "intake",
+      "reasons": [
+        "same_person: same name and location as SCH-026"
+      ]
+    }
+  ]
+}

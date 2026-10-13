@@ -57,6 +57,10 @@
 </header>
 <main>
   {% if chain_problem %}<div class="notice bad"><strong>Audit chain broken:</strong> {{ chain_problem }}</div>{% endif %}
+  {% if demo %}<div class="notice warn"><strong>You're looking at the {{ demo }}.</strong> These results were recorded
+    with the real model and kept in the repo, so the UI works without a key. Anything you do here goes to a separate demo
+    log (<code>{{ log_path }}</code>), never a real one.{% if not has_key %} Scoring new applicants needs
+    <code>GEMINI_API_KEY</code> in <code>.env</code> (copy <code>.env.example</code>), then <code>python -m app.batch --yes</code>.{% endif %}</div>{% endif %}
   {% if msg %}<div class="notice ok">{{ msg }}</div>{% endif %}
   {% if not run and request.url.path != "/" %}<div class="notice warn">No scoring run yet. Run <code>python -m app.batch --yes</code> first.</div>{% endif %}
   {% block content %}{% endblock %}

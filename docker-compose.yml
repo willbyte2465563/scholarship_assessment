@@ -7,7 +7,10 @@ services:
     volumes:
       - .:/app
     env_file:
-      - .env
+      # Optional: without it the UI shows the recorded demo run; only scoring needs GEMINI_API_KEY.
+      - path: .env
+        required: false
     environment:
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
       # File-change events don't cross the Windows -> container bind mount, so poll instead.
       WATCHFILES_FORCE_POLLING: "true"

@@ -1,6 +1,7 @@
 """Reviewer UI: server-rendered pages over the latest scoring run.
 
-The newest run in data/scoring and the audit log are read on every request. Every reviewer
+The newest run in data/scoring and the audit log are read on every request. With no real run
+yet, the recorded demo run in demo/ is shown instead, clearly labelled. Every reviewer
 action is appended to the audit log, and nothing else is stored. Reviewers see only the
 applicant ID and the anonymized application until a final 3 is recorded, then identity for
 those three only. There's no login: the reviewer types a name, kept in a cookie and written into
@@ -11,6 +12,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
 
@@ -34,12 +36,28 @@ DECISIONS = {"release": "hold_released", "exclude": "hold_excluded"}
 NO_NAME = "Enter your name at the top of the page first; it goes into the audit log with everything you do."
 
 
-def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
+def create_app(audit_path: Path, runs_dir: Path, csv_path: Path,
+               demo_dir: Path | None = None, demo_audit_copy: Path | None = None) -> FastAPI:
     app = FastAPI(title="Hargrove scholarship review")
     scoring = load_config(model=os.environ.get("GEMINI_MODEL") or "not set")  # the UI never calls the model
     price_cfg = load_pricing()
-    log = AuditLog(audit_path)
+    logs: dict[Path, AuditLog] = {}  # one per file, so its lock covers every request
     intake_cache: dict[str, dict] = {}
+
+    def source() -> tuple[Path | None, Path, str | None]:
+        """(run folder, audit log, demo label). A real run always wins. With none, the recorded demo
+        run is shown, and reviewer actions on it go to a gitignored copy of its log, never into the
+        committed demo files."""
+        real = latest_run(runs_dir)
+        demo_run = latest_run(demo_dir / "scoring") if demo_dir and not real else None
+        if not demo_run:
+            return real, audit_path, None
+        if not demo_audit_copy.exists():
+            demo_audit_copy.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(demo_dir / "audit.jsonl", demo_audit_copy)
+        recorded = f"{demo_run.name[:4]}-{demo_run.name[4:6]}-{demo_run.name[6:8]}"
+        prompt = load_run(demo_run)["meta"]["prompt_version"]
+        return demo_run, demo_audit_copy, f"demo run (recorded {recorded}, {prompt})"
 
     def applicants() -> dict:
         """Intake's output by ID (the anonymized views), recomputed only when the CSV changes."""
@@ -50,9 +68,10 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         return intake_cache[key]
 
     def state(request: Request) -> dict:
-        entries = read_log(audit_path)
-        run_dir = latest_run(runs_dir)
+        run_dir, log_path, demo = source()
+        entries = read_log(log_path)
         run = load_run(run_dir) if run_dir else None
+        key = os.environ.get("GEMINI_API_KEY", "")
         overrides = overrides_for(entries, run["id"]) if run else {}
         final = final_for(entries, run["id"]) if run else None
         return {
@@ -62,8 +81,11 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
             "final": final,
             # The ranking changed after the final 3 was recorded (e.g. a rescore). The decision stands; say so.
             "final_stale": bool(final) and final["snapshot"]["ranking_sha256"] != fingerprint(run["ranking"]),
-            "log_exists": audit_path.exists(),
-            "chain_problem": verify(audit_path) if audit_path.exists() else None,  # None means intact
+            "log": logs.setdefault(log_path, AuditLog(log_path)), "log_path": log_path,
+            "log_exists": log_path.exists(),
+            "chain_problem": verify(log_path) if log_path.exists() else None,  # None means intact
+            "demo": demo,
+            "has_key": bool(key) and key != "your-key-here",  # scoring needs it; the UI doesn't
         }
 
     def render(name: str, s: dict, status: int = 200, **extra):
@@ -79,6 +101,8 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
     def index(request: Request):
         s = state(request)
         pending = pending_rescore(s["entries"], s["run"], applicants(), scoring, price_cfg) if s["run"] else None
+        if pending and s["demo"]:
+            pending["command"] = None  # the demo run can't be resumed; a real run starts fresh
         return render("index.html", s, pending=pending)
 
     @app.post("/reviewer")
@@ -113,7 +137,7 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         if not reason.strip():
             return refuse(s, "Give a reason for the decision.", "/held")
         h = held_rows[applicant_id]
-        log.append(DECISIONS[decision], {
+        s["log"].append(DECISIONS[decision], {
             "batch_run": s["run"]["id"], "applicant_id": applicant_id, "stage": h["stage"],
             "hold_reasons": h["reasons"], "reason": reason.strip(), "reviewer": s["reviewer"],
         })
@@ -136,7 +160,7 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         if outside := [i for i in picked if i not in ranked]:
             return refuse(s, f"Not ranked in this run: {', '.join(outside)}.", "/shortlist")
         if source == "shortlist":  # opened from the shortlist; coming back from an override isn't a new look
-            log.append("comparison_viewed", {"batch_run": s["run"]["id"], "applicant_ids": picked, "reviewer": s["reviewer"]})
+            s["log"].append("comparison_viewed", {"batch_run": s["run"]["id"], "applicant_ids": picked, "reviewer": s["reviewer"]})
         rows = comparison(s["run"], s["entries"], picked, s["current"], applicants())
         return render("compare.html", s, rows=rows, ids=picked)
 
@@ -164,7 +188,7 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
             return render("override_preview.html", s, effect=effect, back=back, ids=ids, applicant_id=applicant_id,
                           criterion=criterion, score=int(score), reason=reason.strip(),
                           current_score=row["scores"][criterion], model_score=row["model_scores"][criterion])
-        log.append("score_override", {
+        s["log"].append("score_override", {
             "batch_run": s["run"]["id"], "applicant_id": applicant_id, "criterion": criterion,
             "model_score": row["model_scores"][criterion], "previous_score": row["scores"][criterion],
             "score": int(score), "reason": reason.strip(), "reviewer": s["reviewer"], "effect": effect,
@@ -188,7 +212,7 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         if errors:
             revealed = identities(csv_path, s["final"]["applicant_ids"]) if s["final"] else {}
             return render("final.html", s, 400, revealed=revealed, errors=errors, picked=picked, reason=reason)
-        log.append("final_3_recorded", {
+        s["log"].append("final_3_recorded", {
             "batch_run": s["run"]["id"], "applicant_ids": picked, "reason": reason.strip(),
             "acknowledged_tie": bool(acknowledge_tie), "reviewer": s["reviewer"],
             "replaces_seq": s["final"]["seq"] if s["final"] else None,

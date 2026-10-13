@@ -21,10 +21,16 @@
   <div class="notice warn">
     <strong>{{ pending.ids | length }} {{ "applicant is" if pending.ids | length == 1 else "applicants are" }} waiting for the next batch run</strong>
     ({{ pending.ids | join(", ") }}), marked "score anyway" on the <a href="/held">held page</a>.
+    {% if pending.command %}
     Scoring {{ "it" if pending.ids | length == 1 else "them" }} takes {{ pending.calls }} model calls, about ${{ "%.2f" % pending.usd }}:
     <code>{{ pending.command }}</code>. That reuses every call already made and re-ranks; the current ranking is kept as superseded.
+    {% else %}
+    This is the demo run, so {{ "it" if pending.ids | length == 1 else "they" }} can't be rescored from here: decisions on the demo stay in the demo log, and a real run starts fresh.
+    {% endif %}
   </div>
   {% endif %}
+  {% if not has_key and not demo %}<div class="notice">No <code>GEMINI_API_KEY</code> is set. Reviewing works; scoring
+    (<code>python -m app.batch</code>, <code>python -m app.scoring</code>) needs a key in <code>.env</code>.</div>{% endif %}
   {% if tie %}<div class="notice warn">Tie at #3: {{ tie | join(", ") }} share the same total. The rubric leaves this to the committee; nothing in the ranking separates them.</div>{% endif %}
   <h2>How this works</h2>
   <ol>
