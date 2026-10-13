@@ -1,0 +1,38 @@
+{
+  "SCH-020": {
+    "source_sha256": "c82840c28f92c7ebf7e8d6d1cb43cac87c62b9d8d0d9c0d4df9f92a5dee32e3c",
+    "essay": "Our irrigation system broke during the worst week of last July. I was the only person at home. I had seen my father fix it maybe twice. I got it to work after about nine hours. It broke again two days later. This was because I fixed the symptom and not the pump seal. The second repair took forty minutes. By then, I actually understood the system. Nine hours of guessing compared to forty minutes of knowing. That comparison stayed with me more than anything I learned in a classroom that year.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  },
+  "SCH-035": {
+    "source_sha256": "dc76f24ca1d1b7976520e006796783358eeeeb122de1a9c8da1bc2989baedfad",
+    "essay": "I lost a debate round that I should have won. This happened because I would not admit that a small point was clearly wrong. I spent three minutes defending it. Then I ran out of time for my main argument. The judge's note said, roughly, that I defended the least important thing I said. I have gotten better at giving up points on purpose. It still feels like losing every single time.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  },
+  "SCH-046": {
+    "source_sha256": "97ba6d628b032589a7309cfd9f1784e05479307cb942e7e31a87bcebabc2107d",
+    "essay": "I faced a challenge during my sophomore year. I broke my wrist. Because of this, I could not play baseball. It was hard. I was sad about it for a while. I learned that you have to keep going even when things are hard. I also learned that everything happens for a reason. Now I try to have a positive attitude about things. That is what I learned from my challenge.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  },
+  "SCH-047": {
+    "source_sha256": "02c6b9b46d06b7c625d71780131713265e55804340f649d65c84800e15405b56",
+    "essay": "My challenge is working many hours. It is hard for me to finish my homework. Sometimes I am at work until 11. Then I still have to do my assignments. I have learned that time management is important. I want to go to school. Someday I want to open my own salon and not have to work for other people.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  },
+  "SCH-053": {
+    "source_sha256": "3b298f385fcff78273b529f65b339934f983bd39eef89c094ef0223e45ed4314",
+    "essay": "One challenge I overcame was feeling anxious about speaking in front of people. I joined drama club. This sounds strange, but it helped. I am still nervous, but I can do it now. I want to study psychology. I am interested in why people are the way they are. I also want to help people like me.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  },
+  "SCH-056": {
+    "source_sha256": "f60fb843019adf32a3aa2efe74c410f9fd82a9b25eb7f9063d9e5612adc1a836",
+    "essay": "I make beats. I have put out music that people actually listen to. My challenge is that school never felt connected to any of that. Because of that, I did not try very hard for a long time. I am trying harder now. I run sound at my church every Sunday. That is where I learned mixing. I want to study music production. I want to do this for real.",
+    "model": "gemini-3.8-flash",
+    "prompt_sha256": "381a7b380760e7da6490d669519dedf2ee15f55c22cfb8073431dcc70820a457"
+  }
+}
