@@ -1,6 +1,6 @@
 {
-  "version": "1",
-  "prompt": "prompts/score_v1.md",
+  "version": "2",
+  "prompt": "prompts/score_v2.md",
   "temperature": 0.0,
   "max_attempts": 3,
   "weights_percent": {

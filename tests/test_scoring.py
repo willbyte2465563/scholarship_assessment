@@ -61,7 +61,7 @@ def test_real_config_loads_with_weights_summing_to_100(config):
         "academic_readiness": 30, "financial_need": 25, "persistence": 20,
         "community_contribution": 15, "clarity_of_purpose": 10,
     }
-    assert config.prompt_version == "score_v1"
+    assert config.prompt_version == Path(json.loads(Path("config/scoring.json").read_text())["prompt"]).stem
     assert config.model == "gemini-test-model"
 
 
@@ -181,7 +181,7 @@ def test_scored_on_first_try(applicant, config, log):
     assert final["event"] == "score_result" and final["total"] == 6.9
     assert final["scores"] == dict(zip(CRITERIA, (7, 8, 5, 6, 9)))
     for entry in (attempt, final):
-        assert entry["prompt_version"] == "score_v1" and entry["config_version"] == "1"
+        assert entry["prompt_version"] == config.prompt_version and entry["config_version"] == config.version
         assert entry["model"] == "gemini-test-model"
         assert entry["view_sha256"] == applicant["redaction"]["view_sha256"]
     assert verify(log.path) is None
