@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from pathlib import Path
 
+from app import pricing
 from app.intake import CRITERIA
 from app.ranking import build_ranking
 from app.redaction import fingerprint
-from app.scoring import ScoringConfig, weighted_total
+from app.scoring import ScoringConfig, render_prompt, weighted_total
 
 HOLD_EVENTS = ("hold_released", "hold_excluded")
 MARKS = ("rank", "tied", "shortlisted", "shortlist_reason", "close_call", "committee_tie")
@@ -128,7 +130,8 @@ def comparison(run: dict, entries: list[dict], ids: list[str], current: list[dic
 
     out = []
     for i in ids:
-        row, criteria = by_id[i], {}
+        row, criteria, applicant = by_id[i], {}, applicants.get(i)
+        view = (applicant or {}).get("view") or {}
         runs = sorted(k for (a, k) in calls if a == i)
         for c in CRITERIA:
             run_scores = [calls[(i, k)]["scores"][c] for k in runs]
@@ -138,13 +141,102 @@ def comparison(run: dict, entries: list[dict], ids: list[str], current: list[dic
             criteria[c] = {
                 "median": median, "current": row["scores"][c], "overridden": c in row["overridden"],
                 "spread": max(run_scores) - min(run_scores) if run_scores else None, "runs": run_scores,
-                "score_from_run": source, "rationale": item.get("rationale"), "evidence": item.get("evidence", []),
+                "score_from_run": source, "rationale": item.get("rationale"),
+                "evidence": [_label_evidence(e, view) for e in item.get("evidence", [])],
                 "confidence": item.get("confidence"),
             }
-        applicant = applicants.get(i)
         out.append({"applicant_id": i, "ranking": row, "criteria": criteria, "view": applicant and applicant["view"],
                     "view_changed": bool(applicant) and scored_views.get(i) != applicant["redaction"]["view_sha256"]})
     return out
+
+
+PLAIN_HOLDS = {
+    "missing_essay": "No essay was submitted.",
+    "missing_need_statement": "No financial need statement was submitted.",
+    "missing_gpa_and_rank": "Neither a GPA nor a class rank was given, so grades can't show academic readiness.",
+    "short_essay": "The essay is under half the usual length and may have been cut off.",
+    "missing_applicant_id": "The row has no applicant ID.",
+    "duplicate_applicant_id": "This applicant ID appears on more than one row.",
+}
+
+
+def plain_hold_reasons(held: dict, applicant: dict | None) -> list[str]:
+    """Why someone is held, in words a reviewer can act on rather than rule names."""
+    if held["stage"] == "intake":
+        out = []
+        for h in (applicant or {}).get("holds", []):
+            if h["rule"] == "same_person":
+                out.append(f"Looks like the same person applied twice: same name and location as {', '.join(h['related'])}.")
+            elif h["rule"].startswith("sanity_"):
+                out.append(f"Fails a basic check: {h['detail']}.")
+            else:
+                out.append(PLAIN_HOLDS.get(h["rule"], h["detail"]))
+        return out or held["reasons"]
+    out = []
+    for reason in held["reasons"]:
+        if m := re.fullmatch(r"run (\d+): internal error: (.+)", reason):
+            out.append(f"Scoring run {m[1]} hit an internal error ({m[2]}).")
+        elif m := re.fullmatch(r"run (\d+): no valid reply after \d+ attempts; last: (.+)", reason):
+            out.append(f"Scoring run {m[1]} never produced a usable reply (last problem: {m[2]}).")
+        else:
+            out.append(f"Scoring is incomplete: {reason}.")
+    return out
+
+
+def held_groups(run: dict, applicants: dict) -> list[dict]:
+    """Held applicants with their anonymized applications and plain reasons. Copies of the same
+    person are grouped side by side, with the fields that differ between them."""
+    held = {h["applicant_id"]: h for h in run["held"]}
+    seen, groups = set(), []
+    for h in run["held"]:
+        if h["applicant_id"] in seen:
+            continue
+        a = applicants.get(h["applicant_id"])
+        related = [r for hold in (a or {}).get("holds", []) for r in hold.get("related", []) if r in held and r not in seen]
+        members = list(dict.fromkeys([h["applicant_id"], *related]))
+        seen.update(members)
+        rows = [{**held[m], "applicant": applicants.get(m), "plain_reasons": plain_hold_reasons(held[m], applicants.get(m))}
+                for m in members]
+        views = [r["applicant"]["view"] for r in rows if r["applicant"]]
+        differs = sorted(k for k in views[0] if k != "ref" and len({json.dumps(v.get(k)) for v in views}) > 1) \
+            if len(views) > 1 else []
+        groups.append({"rows": rows, "pair": len(rows) > 1, "differs": differs})
+    return groups
+
+
+def ranking_effect(before: list[dict], after: list[dict], close_call_position: int, subject: str | None = None) -> list[str]:
+    """What changes between two rankings, in plain sentences: rank moves (the overridden applicant
+    first), shortlist changes, and what happens to a tie at the cutoff. Empty when nothing moves."""
+    b = {r["applicant_id"]: r for r in before}
+    a = {r["applicant_id"]: r for r in after}
+    moved = sorted((i for i in a if a[i]["rank"] != b[i]["rank"]), key=lambda i: (i != subject, a[i]["rank"], i))
+    lines = [f"{i} moves from #{b[i]['rank']} to #{a[i]['rank']}" for i in moved]
+    lines += [f"{i} joins the shortlist" for i in sorted(a) if a[i]["shortlisted"] and not b[i]["shortlisted"]]
+    lines += [f"{i} drops off the shortlist" for i in sorted(a) if b[i]["shortlisted"] and not a[i]["shortlisted"]]
+    tie_before = sorted(i for i in b if b[i]["committee_tie"])
+    tie_after = sorted(i for i in a if a[i]["committee_tie"])
+    if tie_before != tie_after:
+        if not tie_after:
+            lines.append(f"the tie at #{close_call_position} goes away")
+        elif not tie_before:
+            lines.append(f"{', '.join(tie_after)} are now tied at #{close_call_position} (committee decides)")
+        else:
+            lines.append(f"the tie at #{close_call_position} is now {', '.join(tie_after)}")
+    return lines
+
+
+def pending_rescore(entries: list[dict], run: dict, applicants: dict, scoring: ScoringConfig, pricing_cfg: dict) -> dict | None:
+    """Held applicants a reviewer marked "score anyway" that this run hasn't scored yet, the calls
+    and cost of scoring them, and the command that does it (resuming this run reuses every other call)."""
+    held = {h["applicant_id"] for h in run["held"]}
+    ids = sorted(i for i, d in hold_decisions(entries).items() if d["event"] == "hold_released" and i in held)
+    if not ids:
+        return None
+    runs = scoring.batch.get("runs_per_applicant", 1)
+    chars = runs * sum(len(render_prompt(scoring.prompt, applicants[i]["view"])) for i in ids if i in applicants)
+    est = pricing.estimate(chars, runs * len(ids), pricing_cfg)
+    return {"ids": ids, "calls": est["calls"], "usd": est["usd"],
+            "command": f"python -m app.batch --yes --resume {run['id']}"}
 
 
 def apply_hold_decisions(intake: dict, entries: list[dict]) -> dict:
@@ -172,3 +264,11 @@ def identities(csv_path: Path, ids: list[str]) -> dict[str, dict]:
             if i in wanted:
                 found[i] = {k: (row.get(k) or "").strip() for k in ("name", "city", "state", "high_school")}
     return found
+
+
+def _label_evidence(item: str, view: dict) -> dict:
+    """A field the model relied on (with its value), or a quote from the application."""
+    name = item.strip().casefold()
+    if name in view and name != "ref":
+        return {"kind": "field", "text": name, "value": view[name]}
+    return {"kind": "quote", "text": item}

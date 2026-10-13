@@ -20,9 +20,10 @@ from fastapi.templating import Jinja2Templates
 
 from app.audit import AuditLog, verify
 from app.intake import CRITERIA, run_intake
+from app.pricing import load_pricing
 from app.review import (
-    comparison, current_ranking, final_for, final_snapshot, hold_decisions, identities, latest_run, load_run,
-    overrides_for, read_log, validate_final,
+    comparison, current_ranking, final_for, final_snapshot, held_groups, hold_decisions, identities, latest_run,
+    load_run, overrides_for, pending_rescore, ranking_effect, read_log, validate_final,
 )
 from app.scoring import load_config
 from app.source import sha256
@@ -35,6 +36,7 @@ NO_NAME = "Enter your name at the top of the page first; it goes into the audit 
 def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
     app = FastAPI(title="Hargrove scholarship review")
     scoring = load_config(model=os.environ.get("GEMINI_MODEL") or "not set")  # the UI never calls the model
+    price_cfg = load_pricing()
     log = AuditLog(audit_path)
     intake_cache: dict[str, dict] = {}
 
@@ -71,7 +73,9 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
 
     @app.get("/")
     def index(request: Request):
-        return render("index.html", state(request))
+        s = state(request)
+        pending = pending_rescore(s["entries"], s["run"], applicants(), scoring, price_cfg) if s["run"] else None
+        return render("index.html", s, pending=pending)
 
     @app.post("/reviewer")
     def set_reviewer(request: Request, name: str = Form("")):
@@ -84,8 +88,11 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
     def held(request: Request):
         s = state(request)
         decisions = hold_decisions(s["entries"])
-        rows = [{**h, "decision": decisions.get(h["applicant_id"])} for h in (s["run"] or {}).get("held", [])]
-        return render("held.html", s, rows=rows)
+        groups = held_groups(s["run"], applicants()) if s["run"] else []
+        for g in groups:
+            for r in g["rows"]:
+                r["decision"] = decisions.get(r["applicant_id"])
+        return render("held.html", s, groups=groups)
 
     @app.post("/held/{applicant_id}")
     def decide_hold(request: Request, applicant_id: str, decision: str = Form(""), reason: str = Form("")):
@@ -112,7 +119,7 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         return render("shortlist.html", state(request))
 
     @app.get("/compare")
-    def compare(request: Request, ids: list[str] = Query([])):
+    def compare(request: Request, ids: list[str] = Query([]), source: str | None = Query(None, alias="from")):
         s = state(request)
         picked = list(dict.fromkeys(ids))
         ranked = {r["applicant_id"] for r in s["current"]}
@@ -122,13 +129,14 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
             return refuse(s, f"Compare 2 to 4 applicants (you picked {len(picked)}).", "/shortlist")
         if outside := [i for i in picked if i not in ranked]:
             return refuse(s, f"Not ranked in this run: {', '.join(outside)}.", "/shortlist")
-        log.append("comparison_viewed", {"batch_run": s["run"]["id"], "applicant_ids": picked, "reviewer": s["reviewer"]})
+        if source == "shortlist":  # opened from the shortlist; coming back from an override isn't a new look
+            log.append("comparison_viewed", {"batch_run": s["run"]["id"], "applicant_ids": picked, "reviewer": s["reviewer"]})
         rows = comparison(s["run"], s["entries"], picked, s["current"], applicants())
         return render("compare.html", s, rows=rows, ids=picked)
 
     @app.post("/override")
     def override(request: Request, applicant_id: str = Form(""), criterion: str = Form(""), score: str = Form(""),
-                 reason: str = Form(""), ids: list[str] = Form([])):
+                 reason: str = Form(""), ids: list[str] = Form([]), confirm: str | None = Form(None)):
         s = state(request)
         back = "/compare?" + urlencode({"ids": ids or [applicant_id]}, doseq=True)
         row = next((r for r in s["current"] if r["applicant_id"] == applicant_id), None)
@@ -143,10 +151,17 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
             return refuse(s, "The new score must be a whole number from 0 to 10.", back)
         if not reason.strip():
             return refuse(s, "Give a reason for the override.", back)
+        # An override that moves anyone's rank is shown first and needs a confirm; one that moves nothing saves.
+        proposed = current_ranking(s["run"], {**s["overrides"], (applicant_id, criterion): {"score": int(score)}}, scoring)
+        effect = ranking_effect(s["current"], proposed, scoring.ranking["close_call_position"], subject=applicant_id)
+        if effect and confirm != "yes":
+            return render("override_preview.html", s, effect=effect, back=back, ids=ids, applicant_id=applicant_id,
+                          criterion=criterion, score=int(score), reason=reason.strip(),
+                          current_score=row["scores"][criterion], model_score=row["model_scores"][criterion])
         log.append("score_override", {
             "batch_run": s["run"]["id"], "applicant_id": applicant_id, "criterion": criterion,
             "model_score": row["model_scores"][criterion], "previous_score": row["scores"][criterion],
-            "score": int(score), "reason": reason.strip(), "reviewer": s["reviewer"],
+            "score": int(score), "reason": reason.strip(), "reviewer": s["reviewer"], "effect": effect,
         })
         return go(back, f"{applicant_id} {criterion.replace('_', ' ')} set to {int(score)}.")
 

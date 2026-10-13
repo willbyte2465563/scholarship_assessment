@@ -2,32 +2,72 @@
 {% block title %}Held{% endblock %}
 {% block content %}
 <h1>Held applicants</h1>
-<p class="muted">These weren't scored. "Score anyway" marks an applicant for the next batch run (this page never calls the model). "Exclude" keeps them out. Either way, give a reason.</p>
-{% if not rows %}<p>Nobody is held in this run.</p>{% endif %}
-<table>
-  <tr><th>Applicant</th><th>Held at</th><th>Why</th><th>Decision</th></tr>
-  {% for h in rows %}
-  <tr>
-    <td>{{ h.applicant_id }}</td>
-    <td>{{ h.stage }}</td>
-    <td>{% for r in h.reasons %}<div>{{ r }}</div>{% endfor %}{% for f in h.intake_flags %}<span class="tag warn">{{ f }}</span>{% endfor %}</td>
-    <td>
-      {% if h.decision %}
-        <div>
-          {% if h.decision.event == "hold_released" %}<span class="tag ok">Score anyway (next batch run)</span>{% else %}<span class="tag bad">Excluded</span>{% endif %}
-          <span class="muted">by {{ h.decision.reviewer }}: {{ h.decision.reason }}</span>
-        </div>
-      {% endif %}
-      <form method="post" action="/held/{{ h.applicant_id }}" class="grid" style="margin-top:6px">
-        <div>
-          <label><input type="radio" name="decision" value="release"> Score anyway</label>
-          <label style="margin-left:10px"><input type="radio" name="decision" value="exclude"> Exclude</label>
-        </div>
-        <input type="text" name="reason" placeholder="Reason (required)" aria-label="Reason">
-        <div><button type="submit">{{ 'Change decision' if h.decision else 'Record decision' }}</button></div>
-      </form>
-    </td>
-  </tr>
+<p class="muted">These weren't scored. "Score anyway" marks an applicant for the next batch run (this page never calls the
+  model). "Exclude" keeps them out. Either way, give a reason. Applications are anonymized.</p>
+{% if not groups %}<p>Nobody is held in this run.</p>{% endif %}
+
+{% macro decision_form(r) %}
+  {% if r.decision %}
+    <div>
+      {% if r.decision.event == "hold_released" %}<span class="tag ok">Score anyway (next batch run)</span>{% else %}<span class="tag bad">Excluded</span>{% endif %}
+      <span class="muted">by {{ r.decision.reviewer }}: {{ r.decision.reason }}</span>
+    </div>
+  {% endif %}
+  <form method="post" action="/held/{{ r.applicant_id }}" class="grid" style="margin-top:6px">
+    <div>
+      <label><input type="radio" name="decision" value="release"> Score anyway</label>
+      <label style="margin-left:10px"><input type="radio" name="decision" value="exclude"> Exclude</label>
+    </div>
+    <input type="text" name="reason" placeholder="Reason (required)" aria-label="Reason for {{ r.applicant_id }}">
+    <div><button type="submit">{{ 'Change decision' if r.decision else 'Record decision' }}</button></div>
+  </form>
+{% endmacro %}
+
+{% macro field(label, value, key, differs) %}
+  <tr{% if key in differs %} class="diff" style="background:var(--warn-bg)"{% endif %}><th>{{ label }}{% if key in differs %} <span class="tag warn">differs</span>{% endif %}</th>
+    <td>{{ value if value is not none and value != "" else "not given" }}</td></tr>
+{% endmacro %}
+
+{% macro application(v, differs) %}
+  <table>
+    {{ field("GPA", (v.gpa ~ (" / " ~ v.gpa_scale if v.gpa_scale else "")) if v.gpa is not none else none, "gpa", differs) }}
+    {{ field("Class rank", v.class_rank_percentile, "class_rank_percentile", differs) }}
+    {{ field("Test score", v.test_score, "test_score", differs) }}
+    {{ field("Household", v.household_size, "household_size", differs) }}
+    {{ field("First generation", v.first_generation, "first_generation", differs) }}
+    {{ field("Work hours / week", v.work_hours_per_week, "work_hours_per_week", differs) }}
+    {{ field("Service hours", v.community_service_hours, "community_service_hours", differs) }}
+    {{ field("Intended major", v.intended_major, "intended_major", differs) }}
+    {{ field("Activities", v.extracurriculars, "extracurriculars", differs) }}
+  </table>
+  {% for key, label in [("essay_text", "Essay"), ("recommendation_summary", "Recommendation"), ("financial_need_statement", "Financial need")] %}
+    <h3{% if key in differs %} class="diff"{% endif %}>{{ label }}{% if key in differs %} <span class="tag warn">differs</span>{% endif %}</h3>
+    <div class="text">{{ v[key] or "not given" }}</div>
   {% endfor %}
-</table>
+{% endmacro %}
+
+{% for g in groups %}
+<div class="card" style="margin-bottom:16px">
+  {% if g.pair %}
+    <h2 style="margin-top:0">{{ g.rows | map(attribute="applicant_id") | join(" and ") }}: possibly the same person</h2>
+    <p>{{ g.rows[0].plain_reasons | join(" ") }}</p>
+    {% if g.differs %}<p class="muted">Highlighted fields differ between the copies: {{ g.differs | map("replace", "_", " ") | join(", ") }}.</p>
+    {% else %}<p class="muted">The copies are identical in everything the model would see.</p>{% endif %}
+  {% endif %}
+  <div class="grid" style="grid-template-columns: repeat({{ g.rows | length }}, minmax(260px, 1fr))">
+    {% for r in g.rows %}
+    <div>
+      {% if not g.pair %}<h2 style="margin-top:0">{{ r.applicant_id }}</h2>{% else %}<h3>{{ r.applicant_id }}</h3>{% endif %}
+      <p class="muted">Held at {{ r.stage }}.</p>
+      {% if not g.pair %}{% for reason in r.plain_reasons %}<p>{{ reason }}</p>{% endfor %}{% endif %}
+      {% for f in r.intake_flags %}<span class="tag warn">{{ f.replace("_", " ") }}</span>{% endfor %}
+      {{ decision_form(r) }}
+      <details style="margin-top:8px" {% if g.pair %}open{% endif %}><summary>Application (anonymized)</summary>
+        {% if r.applicant %}{{ application(r.applicant.view, g.differs) }}{% else %}<p class="muted">No application found.</p>{% endif %}
+      </details>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
 {% endblock %}

@@ -105,7 +105,7 @@ def test_failed_sanity_check_is_held(run):
 def test_same_name_and_location_holds_both(run):
     for i, other in (("A-012", "A-013"), ("A-013", "A-012")):
         a = _one(run, i)
-        assert a["holds"] == [{"rule": "same_person", "detail": f"same name and location as {other}"}]
+        assert a["holds"] == [{"rule": "same_person", "detail": f"same name and location as {other}", "related": [other]}]
 
 
 def test_same_name_in_another_town_is_not_the_same_person(run):

@@ -52,15 +52,19 @@ def write_csv(path: Path, rows: list[dict], columns: list[str] | None = None) ->
 
 
 def reviewer_rows() -> list[dict]:
-    """Twenty scorable applicants with distinctive identities, one held at intake, and one
-    recommendation carrying markup. With tests.fakes.VaryingLLM, R-004/009/014/019 tie at the
-    top, so four applicants share #1 and the tie straddles #3."""
+    """Twenty scorable applicants with distinctive identities, one recommendation carrying markup,
+    one applicant held at intake, and a same-person pair held at intake. With tests.fakes.VaryingLLM,
+    R-004/009/014/019 tie at the top, so four applicants share #1 and the tie straddles #3."""
     rows = [
         make_row(f"R-{s:03d}", s, name=f"Zed{s} Quill{s}", city=f"Town{s}x", high_school=f"Academy{s}x", zip=f"{10000 + s}")
         for s in range(1, 21)
     ]
     rows[1]["recommendation_summary"] = "<script>alert('x')</script> Strong student."
     rows.append(make_row("R-021", 21, name="Zed21 Quill21", city="Town21x", high_school="Academy21x", essay_text=""))
+    # The same person twice, with a different GPA and service hours: both held at intake.
+    twin = {"name": "Zed22 Quill22", "city": "Town22x", "high_school": "Academy22x", "zip": "10022"}
+    rows.append(make_row("R-022", 22, **twin))
+    rows.append(make_row("R-023", 23, **twin, gpa="3.40", community_service_hours="45"))
     return rows
 
 

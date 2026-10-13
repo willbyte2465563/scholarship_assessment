@@ -22,7 +22,7 @@
       <div><strong>{{ x.current }}</strong>{% if x.overridden %} <span class="tag warn">overridden; model {{ x.median }}</span>{% endif %}
         <span class="muted">· spread {{ x.spread }} · runs {{ x.runs | join(", ") }}{% if x.confidence %} · {{ x.confidence }} confidence{% endif %}</span></div>
       {% if x.rationale %}<div>{{ x.rationale }}</div>{% else %}<div class="muted">No rationale found for this run.</div>{% endif %}
-      {% if x.evidence %}<ul class="muted" style="margin:4px 0 0 18px;padding:0">{% for e in x.evidence %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      {% if x.evidence %}<ul class="muted" style="margin:4px 0 0 18px;padding:0">{% for e in x.evidence %}<li>{% if e.kind == "field" %}<span class="tag">field</span> {{ e.text }}: {{ e.value if e.value is not none else "not given" }}{% else %}<span class="tag">quote</span> &ldquo;{{ e.text }}&rdquo;{% endif %}</li>{% endfor %}</ul>{% endif %}
       {% if not final %}
       <details style="margin-top:4px"><summary>Override</summary>
         <form method="post" action="/override" class="grid" style="margin-top:4px">

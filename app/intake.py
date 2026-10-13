@@ -73,8 +73,8 @@ def assess(con: duckdb.DuckDBPyConnection) -> dict[str, dict]:
         if entry not in found[i][kind]:
             found[i][kind].append(entry)
 
-    def hold(i: str, rule: str, detail: str) -> None:
-        add(i, "holds", {"rule": rule, "detail": detail})
+    def hold(i: str, rule: str, detail: str, related: list[str] | None = None) -> None:
+        add(i, "holds", {"rule": rule, "detail": detail, **({"related": related} if related else {})})
 
     def flag(i: str, rule: str, detail: str, lowers=()) -> None:
         add(i, "flags", {"rule": rule, "detail": detail, "lowers_confidence": list(lowers)})
@@ -111,8 +111,8 @@ def assess(con: duckdb.DuckDBPyConnection) -> dict[str, dict]:
     for pair in d["same_name"]:
         if any(all(c in pair["also_matching"] for c in loc) for loc in SAME_PERSON_LOCATION):
             a, b = pair["ids"]
-            hold(a, "same_person", f"same name and location as {b}")
-            hold(b, "same_person", f"same name and location as {a}")
+            hold(a, "same_person", f"same name and location as {b}", related=[b])
+            hold(b, "same_person", f"same name and location as {a}", related=[a])
 
     names = dict(con.execute(f"SELECT {ID}, name_key FROM typed").fetchall())
     for g in d["same_numbers"]:

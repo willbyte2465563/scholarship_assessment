@@ -17,6 +17,14 @@
     <tr><th>Score overrides</th><td class="num">{{ overrides | length }}</td><td></td></tr>
     <tr><th>Final 3</th><td>{% if final %}<span class="tag ok">recorded</span>{% else %}<span class="tag">not yet</span>{% endif %}</td><td></td></tr>
   </table>
+  {% if pending %}
+  <div class="notice warn">
+    <strong>{{ pending.ids | length }} {{ "applicant is" if pending.ids | length == 1 else "applicants are" }} waiting for the next batch run</strong>
+    ({{ pending.ids | join(", ") }}), marked "score anyway" on the <a href="/held">held page</a>.
+    Scoring {{ "it" if pending.ids | length == 1 else "them" }} takes {{ pending.calls }} model calls, about ${{ "%.2f" % pending.usd }}:
+    <code>{{ pending.command }}</code>. That reuses every call already made and re-ranks; the current ranking is kept as superseded.
+  </div>
+  {% endif %}
   {% if tie %}<div class="notice warn">Tie at #3: {{ tie | join(", ") }} share the same total. The rubric leaves this to the committee; nothing in the ranking separates them.</div>{% endif %}
   <h2>How this works</h2>
   <ol>

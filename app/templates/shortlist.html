@@ -13,6 +13,7 @@
 {% if tie %}<div class="notice warn">Tie at #{{ rules.close_call_position }}: {{ tie | join(", ") }} have the same total, with fewer places than people. The rubric leaves this to the committee.</div>{% endif %}
 {% if overrides %}<div class="notice">Reviewer overrides are applied and the list is re-ranked. Anyone whose rank moved shows the model's original rank.</div>{% endif %}
 <form method="get" action="/compare">
+  <input type="hidden" name="from" value="shortlist">
   <div class="scroll"><table>
     <tr><th>Compare</th><th>Applicant</th><th>Rank</th><th class="num">Total</th><th class="num">Spread</th><th>Why shortlisted</th><th>Marks</th><th>Flags</th></tr>
     {% for r in shortlisted %}{% set pick = true %}{% include "_row.html" %}{% endfor %}

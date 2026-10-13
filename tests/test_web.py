@@ -107,24 +107,72 @@ def test_setting_the_reviewer_name(scored_run):
 # Compare and override
 
 
-def test_comparing_is_logged_and_needs_two_to_four(client, log_entries):
+def test_comparing_needs_two_to_four_ranked_applicants(client):
     assert client.get("/compare?ids=R-003").status_code == 400
     assert client.get("/compare?ids=R-001&ids=R-002&ids=R-003&ids=R-004&ids=R-006").status_code == 400
     assert client.get("/compare?ids=R-003&ids=R-021").status_code == 400  # held, not ranked
-    assert client.get("/compare?ids=R-003&ids=R-008").status_code == 200
+
+
+def test_only_a_comparison_opened_from_the_shortlist_is_logged(client, log_entries):
+    assert 'name="from" value="shortlist"' in client.get("/shortlist").text
+    assert client.get("/compare?ids=R-003&ids=R-008&from=shortlist").status_code == 200
     e = log_entries()[-1]
     assert e["event"] == "comparison_viewed" and e["applicant_ids"] == ["R-003", "R-008"]
+    before = len(log_entries())
+    assert client.get("/compare?ids=R-003&ids=R-008").status_code == 200  # e.g. back from an override
+    assert len(log_entries()) == before
 
 
-def test_an_override_keeps_the_model_score_and_marks_the_adjusted_rank(client, log_entries):
-    r = client.post("/override", data={"applicant_id": "R-002", "criterion": "financial_need", "score": "10",
-                                       "reason": "Need statement understates it.", "ids": ["R-002", "R-003"]})
+def test_an_override_that_moves_ranks_needs_a_confirm_after_a_preview(client, log_entries):
+    data = {"applicant_id": "R-002", "criterion": "financial_need", "score": "10",
+            "reason": "Need statement understates it.", "ids": ["R-002", "R-003"]}
+    before = len(log_entries())
+    preview = client.post("/override", data=data)
+    assert preview.status_code == 200 and len(log_entries()) == before
+    assert "R-002 moves from #9 to #5" in preview.text and "R-003 moves from #5 to #6" in preview.text
+    assert 'name="confirm" value="yes"' in preview.text
+    r = client.post("/override", data={**data, "confirm": "yes"})
     assert r.status_code == 303 and r.headers["location"].startswith("/compare")
     e = log_entries()[-1]
     assert (e["event"], e["model_score"], e["score"], e["previous_score"]) == ("score_override", 5, 10, 5)
+    assert e["effect"][0] == "R-002 moves from #9 to #5"
     page = client.get("/shortlist").text
     row = page[page.index(">R-002<"):][:600]
     assert "adjusted by reviewer" in row and "model rank 9" in row
+
+
+def test_an_override_that_moves_nothing_saves_straight_away(client, log_entries):
+    r = client.post("/override", data={"applicant_id": "R-004", "criterion": "financial_need", "score": "7",
+                                       "reason": "Agree with the model; recording that I checked.", "ids": ["R-004"]})
+    assert r.status_code == 303
+    assert log_entries()[-1]["event"] == "score_override" and log_entries()[-1]["effect"] == []
+
+
+def test_the_tie_going_away_is_spelled_out(client):
+    r = client.post("/override", data={"applicant_id": "R-004", "criterion": "academic_readiness", "score": "0",
+                                       "reason": "r", "ids": ["R-004"]})
+    assert r.status_code == 200 and "the tie at #3 goes away" in r.text
+
+
+def test_evidence_is_labelled(client):
+    page = client.get("/compare?ids=R-003&ids=R-008").text
+    assert "quote" in page and "field" in page and "gpa: 3.5" in page
+
+
+def test_held_page_shows_the_application_and_puts_the_same_person_side_by_side(client):
+    page = client.get("/held").text
+    assert "No essay was submitted." in page
+    assert "Looks like the same person applied twice" in page
+    assert "word22x0" in page and "word23x0" in page  # both copies' essays
+    assert page.count('class="diff"') >= 4  # differing fields are highlighted
+
+
+def test_overview_shows_applicants_waiting_for_a_rescore(client):
+    assert "waiting for the next batch run" not in client.get("/").text
+    client.post("/held/R-021", data={"decision": "release", "reason": "Essay arrived by mail."})
+    page = client.get("/").text
+    assert "waiting for the next batch run" in page and "R-021" in page
+    assert "python -m app.batch --yes --resume" in page and "$" in page
 
 
 @pytest.mark.parametrize("score", ["11", "-1", "7.5", "x"])
@@ -148,7 +196,7 @@ def test_invalid_final_is_refused_and_not_logged(client, log_entries):
 
 def test_final_with_the_tie_at_three_records_a_snapshot(client, log_entries):
     client.post("/override", data={"applicant_id": "R-002", "criterion": "financial_need", "score": "10",
-                                   "reason": "r", "ids": ["R-002"]})
+                                   "reason": "r", "ids": ["R-002"], "confirm": "yes"})
     assert _final(client, ["R-004", "R-009", "R-002"], ack=True).status_code == 303
     e = log_entries()[-1]
     assert e["event"] == "final_3_recorded" and e["applicant_ids"] == ["R-004", "R-009", "R-002"]
