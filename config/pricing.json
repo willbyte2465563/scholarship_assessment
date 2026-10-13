@@ -1,0 +1,17 @@
+{
+  "pricing": {
+    "model": "gemini-3.8-flash",
+    "input_usd_per_million": 0.75,
+    "output_usd_per_million": 3.75,
+    "note": "Standard paid tier, valid through 2026-12-31 (doubles on 2027-01-01). Output price includes thinking tokens.",
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "checked": "2026-10-13"
+  },
+  "estimate": {
+    "chars_per_token": 4,
+    "output_tokens_per_call": 500,
+    "thinking_tokens_per_call": 1200,
+    "measured_from": "score_v1 suite run 20261013T151733Z: 41,955 output and 100,856 thinking tokens over 87 calls",
+    "retry_margin": 0.1
+  }
+}

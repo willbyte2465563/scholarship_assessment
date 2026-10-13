@@ -16,7 +16,7 @@ import json
 import os
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from app.audit import AuditLog
@@ -44,6 +44,8 @@ class ScoringConfig:
     weights_percent: dict[str, int]
     prompt_version: str
     prompt: str
+    batch: dict = field(default_factory=dict)  # runs per applicant, workers, backoff
+    ranking: dict = field(default_factory=dict)  # shortlist size, close-call position, noise
 
     @property
     def prompt_sha256(self) -> str:
@@ -60,6 +62,9 @@ def load_config(path: Path = DEFAULT_CONFIG, model: str | None = None) -> Scorin
         raise ValueError("weights_percent must be non-negative whole numbers summing to 100")
     if type(raw["max_attempts"]) is not int or raw["max_attempts"] < 1:
         raise ValueError("max_attempts must be a whole number of at least 1")
+    runs = raw.get("batch", {}).get("runs_per_applicant", 1)
+    if type(runs) is not int or runs < 1 or runs % 2 == 0:
+        raise ValueError("runs_per_applicant must be an odd whole number, so each median is a real score")
     model = model or os.environ.get("GEMINI_MODEL")
     if not model:
         raise ValueError("GEMINI_MODEL isn't set")
@@ -75,6 +80,8 @@ def load_config(path: Path = DEFAULT_CONFIG, model: str | None = None) -> Scorin
         weights_percent=dict(weights),
         prompt_version=prompt_path.stem,
         prompt=prompt,
+        batch=raw.get("batch", {}),
+        ranking=raw.get("ranking", {}),
     )
 
 
@@ -156,7 +163,7 @@ def weighted_total(scores: dict[str, int], weights_percent: dict[str, int]) -> f
     return sum(weights_percent[c] * scores[c] for c in CRITERIA) / 100
 
 
-def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: AuditLog) -> dict:
+def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: AuditLog, context: dict | None = None) -> dict:
     """One applicant, one call per attempt. Every attempt is logged, then the result or the hold."""
     view = applicant["view"]
     prompt = render_prompt(config.prompt, view)
@@ -171,6 +178,7 @@ def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: Audit
         "config_version": config.version,
         "model": config.model,
         "temperature": config.temperature,
+        **(context or {}),  # e.g. which batch run this belongs to
     }
     entries, last_problem = [], None
     for attempt in range(1, config.max_attempts + 1):
@@ -181,6 +189,7 @@ def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: Audit
             "attempt": attempt,
             "model_version": reply.model_version,
             "usage": reply.usage,
+            "backoff_retries": reply.backoff_retries,
             "raw_output": reply.text,
             "failure": reply.failure,
             "problems": problems,

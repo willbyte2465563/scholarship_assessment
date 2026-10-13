@@ -1,5 +1,5 @@
 {
-  "version": "2",
+  "version": "3",
   "prompt": "prompts/score_v2.md",
   "temperature": 0.0,
   "max_attempts": 3,
@@ -9,5 +9,16 @@
     "persistence": 20,
     "community_contribution": 15,
     "clarity_of_purpose": 10
+  },
+  "batch": {
+    "runs_per_applicant": 3,
+    "workers": 4,
+    "backoff": {"max_tries": 6, "base_seconds": 2, "cap_seconds": 60}
+  },
+  "ranking": {
+    "shortlist_size": 10,
+    "close_call_position": 3,
+    "noise_percentile": 90,
+    "noise_floor": 0.25
   }
 }

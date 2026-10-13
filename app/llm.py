@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import random
+import time
+from dataclasses import dataclass, replace
 from typing import Protocol
 
 
@@ -12,10 +14,34 @@ class LLMReply:
     failure: str | None = None  # set when the call errored, was blocked or didn't finish
     model_version: str | None = None  # what the provider says actually ran
     usage: dict | None = None  # token counts: input, output, thinking
+    backoff_retries: int = 0  # rate-limit or transient retries before this reply
 
 
 class LLM(Protocol):
     def generate(self, prompt: str, *, model: str, temperature: float) -> LLMReply: ...
+
+
+# Failures worth waiting out: rate limits, server errors, network trouble. Anything else
+# (a block, a bad request) comes straight back and is handled as a scoring attempt.
+TRANSIENT = ("api_error: 429", "api_error: 500", "api_error: 502", "api_error: 503", "api_error: 504", "call_failed")
+
+
+class Backoff:
+    """Retries transient failures with exponential backoff and jitter, below the scoring retry
+    loop, so a rate limit never uses up a validation attempt or holds an applicant."""
+
+    def __init__(self, inner: LLM, max_tries: int = 6, base_seconds: float = 2.0, cap_seconds: float = 60.0,
+                 sleep=time.sleep, jitter=random.random):
+        self.inner, self.max_tries, self.base, self.cap = inner, max_tries, base_seconds, cap_seconds
+        self.sleep, self.jitter = sleep, jitter
+
+    def generate(self, prompt: str, *, model: str, temperature: float) -> LLMReply:
+        for n in range(self.max_tries):
+            reply = self.inner.generate(prompt, model=model, temperature=temperature)
+            if not (reply.failure or "").startswith(TRANSIENT) or n == self.max_tries - 1:
+                return replace(reply, backoff_retries=n)
+            self.sleep(min(self.cap, self.base * 2 ** n) * (0.5 + self.jitter() / 2))
+        raise AssertionError("unreachable")
 
 
 class GeminiClient:

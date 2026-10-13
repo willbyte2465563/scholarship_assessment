@@ -17,7 +17,6 @@ import argparse
 import csv
 import hashlib
 import json
-import math
 import os
 import random
 import sys
@@ -26,6 +25,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app import pricing
 from app.audit import AuditLog
 from app.intake import CRITERIA, NEED, READINESS, run_intake
 from app.llm import LLM, GeminiClient
@@ -146,23 +146,15 @@ def plan_golden(cfg: dict, intake: dict, golden: dict) -> dict:
 
 
 def estimate(cfg: dict, scoring: ScoringConfig, plan: dict) -> dict:
-    est, price = cfg["estimate"], cfg["pricing"]
     chars = sum(len(render_prompt(scoring.prompt, c.view or plan["ready"][c.applicant_id]["view"]))
                 for c in plan["calls"])
     if plan["rewrites_needed"]:
         template = REWRITE_PROMPT.read_text(encoding="utf-8")
         chars += sum(len(template) + len(plan["ready"][i]["view"]["essay_text"]) for i in plan["rewrites_needed"])
-    calls = len(plan["calls"]) + len(plan["rewrites_needed"])
-    margin = 1 + est["retry_margin"]
-    tokens_in = chars / est["chars_per_token"]
-    tokens_out = calls * (est["output_tokens_per_call"] + est["thinking_tokens_per_call"])  # thinking bills as output
-    usd = (tokens_in * price["input_usd_per_million"] + tokens_out * price["output_usd_per_million"]) / 1e6
-    return {"calls": calls, "calls_with_retries": math.ceil(calls * margin), "input_tokens": round(tokens_in),
-            "output_tokens": round(tokens_out), "usd": round(usd, 2), "usd_with_retries": round(usd * margin, 2)}
+    return pricing.estimate(chars, len(plan["calls"]) + len(plan["rewrites_needed"]), cfg)
 
 
 def describe(cfg: dict, scoring: ScoringConfig, plan: dict, est: dict, title: str) -> str:
-    price = cfg["pricing"]
     counts: dict[str, int] = defaultdict(int)
     for c in plan["calls"]:
         counts[c.eval] += 1
@@ -179,19 +171,7 @@ def describe(cfg: dict, scoring: ScoringConfig, plan: dict, est: dict, title: st
     lines.append(f"  {'total':<34}{est['calls']:>4}   (up to {est['calls_with_retries']} with retries)")
     for note in plan["notes"]:
         lines.append(f"  note: {note['eval']} {note['applicant_id']}: {note['note']}")
-    lines += [
-        "",
-        f"Estimated tokens: ~{est['input_tokens']:,} input, ~{est['output_tokens']:,} output including "
-        f"~{cfg['estimate']['thinking_tokens_per_call']:,} thinking tokens per call "
-        f"({cfg['estimate']['measured_from']})",
-        f"Estimated cost: ${est['usd']:.2f} (up to ${est['usd_with_retries']:.2f} with "
-        f"{cfg['estimate']['retry_margin']:.0%} retries)",
-        f"Price: ${price['input_usd_per_million']}/M input, ${price['output_usd_per_million']}/M output for "
-        f"{price['model']}. {price['note']}",
-        f"Source: {price['source']} (checked {price['checked']})",
-    ]
-    if price["model"] != scoring.model:
-        lines.append(f"WARNING: the price is for {price['model']} but scoring uses {scoring.model}")
+    lines += ["", *pricing.describe(est, cfg, scoring.model)]
     return "\n".join(lines)
 
 
@@ -423,7 +403,7 @@ def main(argv: list[str] | None = None, llm: LLM | None = None) -> int:
     parser.add_argument("--results", type=Path, default=RESULTS)
     args = parser.parse_args(argv)
 
-    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    cfg = {**json.loads(CONFIG.read_text(encoding="utf-8")), **pricing.load_pricing()}
     scoring = load_config()
     intake = run_intake(args.csv)
     if args.golden:
