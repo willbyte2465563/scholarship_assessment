@@ -64,7 +64,7 @@ def reviewer_rows() -> list[dict]:
     # The same person twice, with a different GPA and service hours: both held at intake.
     twin = {"name": "Zed22 Quill22", "city": "Town22x", "high_school": "Academy22x", "zip": "10022"}
     rows.append(make_row("R-022", 22, **twin))
-    rows.append(make_row("R-023", 23, **twin, gpa="3.40", community_service_hours="45"))
+    rows.append(make_row("R-023", 23, **twin, gpa="3.40", community_service_hours="45", submitted_at="2026-02-03 10:00"))
     return rows
 
 

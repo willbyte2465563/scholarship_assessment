@@ -23,9 +23,10 @@ from app.intake import CRITERIA, run_intake
 from app.pricing import load_pricing
 from app.review import (
     comparison, current_ranking, final_for, final_snapshot, held_groups, hold_decisions, identities, latest_run,
-    load_run, overrides_for, pending_rescore, ranking_effect, read_log, validate_final,
+    load_run, overrides_for, pending_rescore, ranking_effect, read_log, submission_labels, validate_final,
 )
 from app.scoring import load_config
+from app.redaction import fingerprint
 from app.source import sha256
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -53,11 +54,14 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         run_dir = latest_run(runs_dir)
         run = load_run(run_dir) if run_dir else None
         overrides = overrides_for(entries, run["id"]) if run else {}
+        final = final_for(entries, run["id"]) if run else None
         return {
             "request": request, "reviewer": request.cookies.get("reviewer"), "msg": request.query_params.get("msg"),
             "entries": entries, "run": run, "overrides": overrides, "criteria": CRITERIA, "rules": scoring.ranking,
             "current": current_ranking(run, overrides, scoring) if run else [],
-            "final": final_for(entries, run["id"]) if run else None,
+            "final": final,
+            # The ranking changed after the final 3 was recorded (e.g. a rescore). The decision stands; say so.
+            "final_stale": bool(final) and final["snapshot"]["ranking_sha256"] != fingerprint(run["ranking"]),
             "log_exists": audit_path.exists(),
             "chain_problem": verify(audit_path) if audit_path.exists() else None,  # None means intact
         }
@@ -90,8 +94,10 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path) -> FastAPI:
         decisions = hold_decisions(s["entries"])
         groups = held_groups(s["run"], applicants()) if s["run"] else []
         for g in groups:
+            labels = submission_labels(csv_path, [r["applicant_id"] for r in g["rows"]]) if g["pair"] else {}
             for r in g["rows"]:
                 r["decision"] = decisions.get(r["applicant_id"])
+                r["submission_order"] = labels.get(r["applicant_id"])
         return render("held.html", s, groups=groups)
 
     @app.post("/held/{applicant_id}")

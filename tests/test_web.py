@@ -233,3 +233,26 @@ def test_audit_page_shows_whether_the_chain_verifies(client, scored_run):
     scored_run["audit"].write_text("\n".join(lines) + "\n", encoding="utf-8")
     assert verify(scored_run["audit"]) is not None
     assert "Chain broken" in client.get("/audit").text
+
+
+def test_duplicate_copies_show_which_came_later_but_not_when(client):
+    page = client.get("/held").text
+    assert "earlier copy" in page and "later copy" in page
+    assert "2026-02-03" not in page and "2026-02-01" not in page
+
+
+def test_final_page_warns_when_the_ranking_changed_after_it_was_recorded(client, scored_run, log_entries):
+    from app.batch import main as batch_main
+    from tests.fakes import VaryingLLM
+
+    assert _final(client, ["R-003", "R-008", "R-013"]).status_code == 303
+    assert "earlier ranking" not in client.get("/final").text
+    client.post("/held/R-021", data={"decision": "release", "reason": "Essay arrived by mail."})
+    run_id = next(scored_run["runs"].iterdir()).name
+    args = ["--yes", "--resume", run_id, "--csv", str(scored_run["csv"]), "--runs-dir", str(scored_run["runs"]),
+            "--audit", str(scored_run["audit"])]
+    assert batch_main(args, llm=VaryingLLM()) == 0  # rescoring the released applicant re-ranks this run
+    page = client.get("/final").text
+    assert "recorded against an earlier ranking" in page
+    assert "Zed3 Quill3" in page  # the recorded decision itself is unchanged
+    assert [e["event"] for e in log_entries()].count("final_3_recorded") == 1

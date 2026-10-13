@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 from app import pricing
@@ -211,6 +212,9 @@ def ranking_effect(before: list[dict], after: list[dict], close_call_position: i
     a = {r["applicant_id"]: r for r in after}
     moved = sorted((i for i in a if a[i]["rank"] != b[i]["rank"]), key=lambda i: (i != subject, a[i]["rank"], i))
     lines = [f"{i} moves from #{b[i]['rank']} to #{a[i]['rank']}" for i in moved]
+    k = close_call_position
+    lines += [f"{i} enters the top {k}" for i in moved if a[i]["rank"] <= k < b[i]["rank"]]
+    lines += [f"{i} leaves the top {k}" for i in moved if b[i]["rank"] <= k < a[i]["rank"]]
     lines += [f"{i} joins the shortlist" for i in sorted(a) if a[i]["shortlisted"] and not b[i]["shortlisted"]]
     lines += [f"{i} drops off the shortlist" for i in sorted(a) if b[i]["shortlisted"] and not a[i]["shortlisted"]]
     tie_before = sorted(i for i in b if b[i]["committee_tie"])
@@ -272,3 +276,25 @@ def _label_evidence(item: str, view: dict) -> dict:
     if name in view and name != "ref":
         return {"kind": "field", "text": name, "value": view[name]}
     return {"kind": "quote", "text": item}
+
+
+def submission_labels(csv_path: Path, ids: list[str]) -> dict[str, str]:
+    """For copies of the same application: which came first, as "earlier copy" / "later copy".
+    Submission time is identity information, so only the order is shown, never the timestamp.
+    Empty when any time is missing or two are equal, since then there's no order to show."""
+    wanted, times = set(ids), {}
+    with csv_path.open(encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            i = (row.get("applicant_id") or "").strip()
+            if i in wanted:
+                try:
+                    times[i] = datetime.fromisoformat((row.get("submitted_at") or "").strip())
+                except ValueError:
+                    pass
+    if len(times) != len(wanted) or len(set(times.values())) != len(times) or len(times) < 2:
+        return {}
+    ordered = sorted(times, key=times.get)
+    if len(ordered) == 2:
+        return {ordered[0]: "earlier copy", ordered[1]: "later copy"}
+    return {i: "earliest copy" if n == 0 else "latest copy" if n == len(ordered) - 1 else "in-between copy"
+            for n, i in enumerate(ordered)}

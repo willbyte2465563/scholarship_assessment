@@ -6,7 +6,8 @@ from app.audit import AuditLog
 from app.intake import NEED, run_intake
 from app.review import (
     apply_hold_decisions, comparison, current_ranking, final_for, final_snapshot, held_groups, hold_decisions, identities,
-    latest_run, load_run, overrides_for, pending_rescore, plain_hold_reasons, ranking_effect, read_log, validate_final,
+    latest_run, load_run, overrides_for, pending_rescore, plain_hold_reasons, ranking_effect, read_log, submission_labels,
+    validate_final,
 )
 from app.pricing import load_pricing
 from app.scoring import load_config
@@ -223,3 +224,16 @@ def test_pending_rescore_counts_released_applicants_and_prices_them(scored_run, 
     assert pending["command"] == f"python -m app.batch --yes --resume {run['id']}"
     assert 0 < pending["usd"] < 0.1
     assert pending_rescore([], run, applicants, scoring, load_pricing()) is None
+
+
+def test_copies_are_labelled_earlier_and_later_without_the_timestamp(scored_run):
+    assert submission_labels(scored_run["csv"], ["R-023", "R-022"]) == {"R-022": "earlier copy", "R-023": "later copy"}
+    assert submission_labels(scored_run["csv"], ["R-001", "R-002"]) == {}  # same timestamp: no order to show
+
+
+def test_the_effect_says_who_enters_or_leaves_the_top_three(run, scoring):
+    before = current_ranking(run, {}, scoring)
+    after = current_ranking(run, {("R-004", "academic_readiness"): _override("R-004", "academic_readiness", 7, 0)}, scoring)
+    assert "R-004 leaves the top 3" in ranking_effect(before, after, close_call_position=3, subject="R-004")
+    up = current_ranking(run, {("R-003", NEED): _override("R-003", NEED, 6, 10)}, scoring)  # 6.0 -> 7.0, joins the top tie
+    assert "R-003 enters the top 3" in ranking_effect(before, up, close_call_position=3, subject="R-003")

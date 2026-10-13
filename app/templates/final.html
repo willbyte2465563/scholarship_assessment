@@ -7,6 +7,12 @@
 
 {% if final %}
   {% set snap = {} %}{% for r in final.snapshot.shortlist %}{% set _ = snap.update({r.applicant_id: r}) %}{% endfor %}
+  {% if final_stale %}
+  <div class="notice bad"><strong>This final 3 was recorded against an earlier ranking.</strong> The ranking has changed
+    since (for example, after held applicants were rescored), so the ranks and totals below are from the snapshot taken
+    when it was recorded. The decision itself is unchanged. If it should change, review the current
+    <a href="/shortlist">shortlist</a> and record a new final 3 with a reason.</div>
+  {% endif %}
   <div class="notice ok">Recorded by <strong>{{ final.reviewer }}</strong> at {{ final.at }} (audit entry <a href="/audit/{{ final.seq }}">#{{ final.seq }}</a>{% if final.replaces_seq %}, replacing <a href="/audit/{{ final.replaces_seq }}">#{{ final.replaces_seq }}</a>{% endif %}).</div>
   <table>
     <tr><th>Applicant</th><th>Name</th><th>Location</th><th>High school</th><th>Rank</th><th class="num">Total</th><th>Marks</th></tr>

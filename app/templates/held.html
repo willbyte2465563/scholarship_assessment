@@ -57,7 +57,7 @@
   <div class="grid" style="grid-template-columns: repeat({{ g.rows | length }}, minmax(260px, 1fr))">
     {% for r in g.rows %}
     <div>
-      {% if not g.pair %}<h2 style="margin-top:0">{{ r.applicant_id }}</h2>{% else %}<h3>{{ r.applicant_id }}</h3>{% endif %}
+      {% if not g.pair %}<h2 style="margin-top:0">{{ r.applicant_id }}</h2>{% else %}<h3>{{ r.applicant_id }}{% if r.submission_order %} <span class="tag">{{ r.submission_order }}</span>{% endif %}</h3>{% endif %}
       <p class="muted">Held at {{ r.stage }}.</p>
       {% if not g.pair %}{% for reason in r.plain_reasons %}<p>{{ reason }}</p>{% endfor %}{% endif %}
       {% for f in r.intake_flags %}<span class="tag warn">{{ f.replace("_", " ") }}</span>{% endfor %}
