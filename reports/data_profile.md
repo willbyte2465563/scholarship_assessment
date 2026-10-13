@@ -3,7 +3,7 @@
 - Source: `data/raw/scholarship_candidates.csv`
 - SHA-256: `9ab0fc987839b22ca3e6f7064512483f3c954aeab191a5ed04042102aef39241`
 - Rows: 60
-- Generated: 2026-10-13T13:58:05+00:00
+- Generated: 2026-10-13T14:22:30+00:00
 
 Counts and applicant IDs only. No raw text or personal information.
 
@@ -21,7 +21,6 @@ Counts and applicant IDs only. No raw text or personal information.
 ### Text
 
 - essay_text: 1 under half the median length — SCH-030
-- essay_text: 1 may be truncated (no closing punctuation, or trailing whitespace) — SCH-030
 
 ### Could not check
 
@@ -109,12 +108,12 @@ Counts and applicant IDs only. No raw text or personal information.
 
 ## Text lengths (words)
 
-| Column | Min | P5 | Median | P95 | Max | Median chars | Short | Possibly truncated |
-|---|---|---|---|---|---|---|---|---|
-| extracurriculars | 4 | 4.0 | 6.0 | 9.0 | 10 | 43.5 | 0 | - |
-| essay_text | 20 | 55.0 | 85.0 | 107.3 | 114 | 446.0 | 1 | 1 |
-| recommendation_summary | 6 | 6.0 | 11.0 | 19.1 | 47 | 86.0 | 0 | 0 |
-| financial_need_statement | 4 | 5.0 | 7.0 | 10.05 | 14 | 61.0 | 0 | 0 |
+| Column | Min | P5 | Median | P95 | Max | Median chars | Short |
+|---|---|---|---|---|---|---|---|
+| extracurriculars | 4 | 4.0 | 6.0 | 9.0 | 10 | 43.5 | 0 |
+| essay_text | 20 | 55.0 | 85.0 | 107.3 | 114 | 446.0 | 1 |
+| recommendation_summary | 6 | 6.0 | 11.0 | 19.1 | 47 | 86.0 | 0 |
+| financial_need_statement | 4 | 5.0 | 7.0 | 10.05 | 14 | 61.0 | 0 |
 
 ## Sanity checks
 

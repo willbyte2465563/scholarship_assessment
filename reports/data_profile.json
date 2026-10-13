@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T13:58:05+00:00",
+  "generated_at": "2026-10-13T14:22:30+00:00",
   "source": {
     "path": "data/raw/scholarship_candidates.csv",
     "sha256": "9ab0fc987839b22ca3e6f7064512483f3c954aeab191a5ed04042102aef39241",
@@ -247,9 +247,6 @@
       "median_chars": 446.0,
       "short_ids": [
         "SCH-030"
-      ],
-      "possibly_truncated_ids": [
-        "SCH-030"
       ]
     },
     "recommendation_summary": {
@@ -261,8 +258,7 @@
         "max": 47
       },
       "median_chars": 86.0,
-      "short_ids": [],
-      "possibly_truncated_ids": []
+      "short_ids": []
     },
     "financial_need_statement": {
       "words": {
@@ -273,8 +269,7 @@
         "max": 14
       },
       "median_chars": 61.0,
-      "short_ids": [],
-      "possibly_truncated_ids": []
+      "short_ids": []
     }
   },
   "sanity": [
@@ -597,13 +592,6 @@
     {
       "area": "text",
       "message": "essay_text: 1 under half the median length",
-      "ids": [
-        "SCH-030"
-      ]
-    },
-    {
-      "area": "text",
-      "message": "essay_text: 1 may be truncated (no closing punctuation, or trailing whitespace)",
       "ids": [
         "SCH-030"
       ]

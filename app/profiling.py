@@ -62,8 +62,6 @@ SHOW_VALUES = ("school_type", "first_generation", "gpa_scale")
 TEXT_COLUMNS = [c for c, kind in SCHEMA.items() if kind == "text"]
 # Free text that reaches the LLM, so it gets scanned for instructions.
 LLM_TEXT_COLUMNS = TEXT_COLUMNS + ["intended_major"]
-# Prose fields where a missing final punctuation mark suggests the text was cut off.
-TRUNCATION_COLUMNS = ["essay_text", "recommendation_summary", "financial_need_statement"]
 # Fields that, together, describe an applicant's numbers. Groups matching on all of them are reported.
 PROFILE_COLUMNS = [
     "gpa", "gpa_scale", "class_rank", "test_score", "household_size",
@@ -71,7 +69,9 @@ PROFILE_COLUMNS = [
 ]
 IDENTITY_COLUMNS = ["city", "state", "zip", "high_school"]
 
-SHORT_TEXT_RATIO = 0.5  # under half the column's median word count counts as short
+# Under half the column's median word count counts as short. For essays, that's also
+# intake's truncation rule; punctuation and whitespace signals were too weak to keep.
+SHORT_TEXT_RATIO = 0.5
 SHINGLE_WORDS = 5
 NEAR_DUPLICATE_JACCARD = 0.5
 COMMON_SHINGLE_DOCS = 50  # shingles in more docs than this are boilerplate and don't count
@@ -217,15 +217,6 @@ def profile_text(con: duckdb.DuckDBPyConnection) -> dict:
         entry["short_ids"] = (
             _ids(con, f"NOT {_blank(c)} AND {words} < ?", [median * SHORT_TEXT_RATIO]) if median else []
         )
-        if c in TRUNCATION_COLUMNS:
-            # No closing punctuation, a trailing ellipsis, or trailing whitespace (text cut after a sentence).
-            entry["possibly_truncated_ids"] = _ids(
-                con,
-                f"""NOT {_blank(c)} AND (
-                    NOT regexp_matches(rtrim({c}), '[.!?"\\x27\u201d\u2019)]$')
-                    OR regexp_matches(rtrim({c}), '(\\.\\.\\.|\u2026)$')
-                    OR {c} <> rtrim({c}))""",
-            )
         out[c] = entry
     return out
 
@@ -404,9 +395,6 @@ def build_findings(p: dict) -> list[dict]:
     for c, t in p["text"].items():
         if t["short_ids"]:
             add("text", f"{c}: {len(t['short_ids'])} under half the median length", t["short_ids"])
-        if t.get("possibly_truncated_ids"):
-            add("text", f"{c}: {len(t['possibly_truncated_ids'])} may be truncated (no closing punctuation, or trailing whitespace)",
-                t["possibly_truncated_ids"])
     for s in p["sanity"]:
         if s["failed_ids"]:
             add("sanity", f"{s['check']}: {len(s['failed_ids'])} fail ({s['rule']})", s["failed_ids"])
@@ -513,14 +501,13 @@ def render_markdown(p: dict) -> str:
         lines.append(f"- {c}: {counts}")
 
     lines += ["", "## Text lengths (words)", "",
-              "| Column | Min | P5 | Median | P95 | Max | Median chars | Short | Possibly truncated |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              "| Column | Min | P5 | Median | P95 | Max | Median chars | Short |",
+              "|---|---|---|---|---|---|---|---|"]
     for c, t in p["text"].items():
         w = t["words"]
-        truncated = len(t["possibly_truncated_ids"]) if "possibly_truncated_ids" in t else "-"
         lines.append(
             f"| {c} | {w['min']} | {w['p05']} | {w['median']} | {w['p95']} | {w['max']} | {t['median_chars']}"
-            f" | {len(t['short_ids'])} | {truncated} |"
+            f" | {len(t['short_ids'])} |"
         )
 
     lines += ["", "## Sanity checks", "", "| Check | Rule | Failed | Couldn't run |", "|---|---|---|---|"]

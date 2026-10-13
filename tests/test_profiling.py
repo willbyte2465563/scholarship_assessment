@@ -120,10 +120,10 @@ def test_duplicates(planted):
     assert ["A-002", "A-008"] in near
 
 
-def test_short_essay_is_flagged_as_short_and_possibly_truncated(planted):
+def test_essay_under_half_the_median_length_is_short(planted):
     essay = planted["text"]["essay_text"]
-    assert "A-011" in essay["short_ids"]
-    assert "A-011" in essay["possibly_truncated_ids"]
+    assert essay["short_ids"] == ["A-011"]
+    assert "possibly_truncated_ids" not in essay
 
 
 def test_instruction_like_text(planted):
