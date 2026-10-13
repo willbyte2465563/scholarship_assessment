@@ -245,3 +245,19 @@ def test_command_needs_an_api_key(csv_path, capsys, monkeypatch, tmp_path):
     assert main(["A-001", "--csv", str(csv_path), "--audit", str(tmp_path / "a.jsonl")]) == 2
     assert "GEMINI_API_KEY" in capsys.readouterr().out
     assert not (tmp_path / "a.jsonl").exists()
+
+
+def test_gendered_pronoun_in_a_rationale_is_flagged_not_rejected(applicant, config, log):
+    reply = good_reply()
+    reply["scores"][2]["rationale"] = "Her persistence shows; she kept going."
+    result = score_applicant(applicant, FakeLLM(reply), config, log)
+    assert result["status"] == "scored" and result["attempts"] == 1
+    expected = [{"rule": "gendered_pronoun_in_rationale", "found": {"persistence": ["her", "she"]}}]
+    assert result["flags"] == expected
+    assert _entries(log)[-1]["flags"] == expected
+
+
+def test_token_usage_is_logged_per_attempt(applicant, config, log):
+    usage = {"input": 1100, "output": 480, "thinking": 900}
+    score_applicant(applicant, FakeLLM(LLMReply(json.dumps(good_reply()), None, "m", usage)), config, log)
+    assert _entries(log)[0]["usage"] == usage

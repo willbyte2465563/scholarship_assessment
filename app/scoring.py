@@ -137,6 +137,20 @@ def validate(text: str | None, view: dict) -> tuple[dict | None, list[str]]:
     return {c: by_criterion[c] for c in CRITERIA}, []
 
 
+_GENDERED = re.compile(r"\b(he|she|him|his|her|hers|himself|herself)\b", re.IGNORECASE)
+
+
+def gendered_pronouns(criteria: dict[str, dict]) -> dict[str, list[str]]:
+    """Rationales that call the applicant he or she. The view never says, so the model guessed.
+    A flag for the reviewer, not a reason to reject the reply."""
+    found = {}
+    for c, item in criteria.items():
+        words = sorted({w.lower() for w in _GENDERED.findall(item.get("rationale") or "")})
+        if words:
+            found[c] = words
+    return found
+
+
 def weighted_total(scores: dict[str, int], weights_percent: dict[str, int]) -> float:
     """Integer arithmetic, then one division, so equal inputs give exactly equal totals."""
     return sum(weights_percent[c] * scores[c] for c in CRITERIA) / 100
@@ -166,6 +180,7 @@ def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: Audit
             **base,
             "attempt": attempt,
             "model_version": reply.model_version,
+            "usage": reply.usage,
             "raw_output": reply.text,
             "failure": reply.failure,
             "problems": problems,
@@ -173,6 +188,9 @@ def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: Audit
         if scored:
             scores = {c: scored[c]["score"] for c in CRITERIA}
             total = weighted_total(scores, config.weights_percent)
+            flags = []
+            if pronouns := gendered_pronouns(scored):
+                flags.append({"rule": "gendered_pronoun_in_rationale", "found": pronouns})
             entries.append(log.append("score_result", {
                 **base,
                 "attempts": attempt,
@@ -180,10 +198,11 @@ def score_applicant(applicant: dict, llm: LLM, config: ScoringConfig, log: Audit
                 "confidence": {c: scored[c]["confidence"] for c in CRITERIA},
                 "weights_percent": config.weights_percent,
                 "total": total,
+                "flags": flags,
             })["seq"])
             return {
                 "applicant_id": applicant["applicant_id"], "status": "scored", "attempts": attempt,
-                "total": total, "criteria": scored, "audit_seq": entries,
+                "total": total, "criteria": scored, "flags": flags, "audit_seq": entries,
             }
         last_problem = reply.failure or "; ".join(problems)
 

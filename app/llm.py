@@ -11,6 +11,7 @@ class LLMReply:
     text: str | None
     failure: str | None = None  # set when the call errored, was blocked or didn't finish
     model_version: str | None = None  # what the provider says actually ran
+    usage: dict | None = None  # token counts: input, output, thinking
 
 
 class LLM(Protocol):
@@ -40,12 +41,18 @@ class GeminiClient:
             return LLMReply(None, f"call_failed: {type(e).__name__}")
 
         version = response.model_version
+        meta = response.usage_metadata
+        usage = meta and {
+            "input": meta.prompt_token_count,
+            "output": meta.candidates_token_count,
+            "thinking": meta.thoughts_token_count,
+        }
         feedback = response.prompt_feedback
         if feedback and feedback.block_reason:
-            return LLMReply(None, f"blocked: {feedback.block_reason}", version)
+            return LLMReply(None, f"blocked: {feedback.block_reason}", version, usage)
         if not response.candidates:
-            return LLMReply(None, "no_candidates", version)
+            return LLMReply(None, "no_candidates", version, usage)
         finish = response.candidates[0].finish_reason
         if finish not in (None, types.FinishReason.STOP):
-            return LLMReply(response.text, f"finish_reason: {finish}", version)
-        return LLMReply(response.text, None, version)
+            return LLMReply(response.text, f"finish_reason: {finish}", version, usage)
+        return LLMReply(response.text, None, version, usage)
