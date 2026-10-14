@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "run": "20261014T045917Z-golden-holdout",
+    "prompt_version": "score_v2",
+    "prompt_sha256": "1b5ebb6327fcc60615f747c1b0045a3c4c173d699e327bd4e4f4a17b5010aa58",
+    "model": "gemini-3.8-flash",
+    "scoring_config": "3",
+    "eval_config": "2",
+    "seed": 20261013,
+    "applicants": "SCH-028, SCH-045, SCH-057",
+    "usage": {
+      "tokens": {
+        "input": 10335,
+        "output": 4689,
+        "thinking": 9310
+      },
+      "usd": 0.0602
+    }
+  },
+  "agreement": {
+    "applicants": [
+      "SCH-028",
+      "SCH-045",
+      "SCH-057"
+    ],
+    "by_criterion": {
+      "academic_readiness": {
+        "mean_abs_gap": 0.33,
+        "within_1": "3/3"
+      },
+      "financial_need": {
+        "mean_abs_gap": 1.0,
+        "within_1": "2/3"
+      },
+      "persistence": {
+        "mean_abs_gap": 0.33,
+        "within_1": "3/3"
+      },
+      "community_contribution": {
+        "mean_abs_gap": 0.0,
+        "within_1": "3/3"
+      },
+      "clarity_of_purpose": {
+        "mean_abs_gap": 1.0,
+        "within_1": "3/3"
+      }
+    },
+    "total_mean_abs_gap": 0.25,
+    "same_order": true,
+    "totals": {
+      "SCH-028": {
+        "model": 7.15,
+        "human": 7.2
+      },
+      "SCH-045": {
+        "model": 5.2,
+        "human": 5.3
+      },
+      "SCH-057": {
+        "model": 5.8,
+        "human": 6.4
+      }
+    }
+  },
+  "model_medians": {
+    "SCH-028": {
+      "academic_readiness": 7,
+      "financial_need": 7,
+      "persistence": 8,
+      "community_contribution": 8,
+      "clarity_of_purpose": 5
+    },
+    "SCH-045": {
+      "academic_readiness": 7,
+      "financial_need": 4,
+      "persistence": 2,
+      "community_contribution": 6,
+      "clarity_of_purpose": 8
+    },
+    "SCH-057": {
+      "academic_readiness": 5,
+      "financial_need": 7,
+      "persistence": 6,
+      "community_contribution": 5,
+      "clarity_of_purpose": 6
+    }
+  },
+  "spread": {
+    "SCH-028": {
+      "academic_readiness": 0,
+      "financial_need": 0,
+      "persistence": 0,
+      "community_contribution": 0,
+      "clarity_of_purpose": 1,
+      "total": 0.1
+    },
+    "SCH-045": {
+      "academic_readiness": 0,
+      "financial_need": 0,
+      "persistence": 0,
+      "community_contribution": 1,
+      "clarity_of_purpose": 1,
+      "total": 0.15
+    },
+    "SCH-057": {
+      "academic_readiness": 0,
+      "financial_need": 0,
+      "persistence": 0,
+      "community_contribution": 0,
+      "clarity_of_purpose": 1,
+      "total": 0.1
+    }
+  },
+  "held": []
+}
