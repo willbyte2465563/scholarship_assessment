@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Your name{% endblock %}
+{% block content %}
+<h1>Compare {{ ids | join(", ") }}</h1>
+<p>Comparisons are recorded in the audit log with who looked at them, so enter your name to open this one.
+  It's kept for the rest of your session and goes into every action you take.</p>
+<form method="post" action="/reviewer" class="grid" style="max-width:420px">
+  <input type="hidden" name="next" value="{{ next_page }}">
+  <label>Your name <input type="text" name="name" required autofocus></label>
+  <div><button type="submit">Open the comparison</button> <a href="/shortlist" style="margin-left:12px">Back to the shortlist</a></div>
+</form>
+{% endblock %}

@@ -308,3 +308,24 @@ def test_the_ui_says_scoring_needs_a_key(client, monkeypatch):
     assert "No <code>GEMINI_API_KEY</code> is set" in client.get("/").text
     monkeypatch.setenv("GEMINI_API_KEY", "a-real-looking-key")
     assert "No <code>GEMINI_API_KEY</code> is set" not in client.get("/").text
+
+
+def test_compare_without_a_name_asks_for_it_inline_then_opens(scored_run, log_entries):
+    c = TestClient(create_app(audit_path=scored_run["audit"], runs_dir=scored_run["runs"], csv_path=scored_run["csv"]),
+                   follow_redirects=False)
+    target = "/compare?from=shortlist&ids=R-003&ids=R-008"
+    before = len(log_entries())
+    page = c.get(target)
+    assert page.status_code == 200 and "enter your name to open this one" in page.text
+    assert 'name="next" value="/compare?from=shortlist&amp;ids=R-003&amp;ids=R-008"' in page.text
+    assert len(log_entries()) == before  # nothing logged until we know who's looking
+    r = c.post("/reviewer", data={"name": "Ada", "next": target})
+    assert r.status_code == 303 and r.headers["location"] == target
+    assert c.get(target).status_code == 200
+    assert log_entries()[-1]["event"] == "comparison_viewed" and log_entries()[-1]["reviewer"] == "Ada"
+
+
+@pytest.mark.parametrize("next_page", ["https://evil.example/", "//evil.example/", r"/\evil.example/"])
+def test_the_name_form_only_returns_to_local_pages(client, next_page):
+    r = client.post("/reviewer", data={"name": "Ada", "next": next_page})
+    assert r.status_code == 303 and r.headers["location"] == "/"

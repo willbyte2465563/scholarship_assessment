@@ -106,8 +106,10 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path,
         return render("index.html", s, pending=pending)
 
     @app.post("/reviewer")
-    def set_reviewer(request: Request, name: str = Form("")):
-        response = go(urlparse(request.headers.get("referer") or "").path or "/")  # same-site path only
+    def set_reviewer(request: Request, name: str = Form(""), next_page: str = Form("", alias="next")):
+        # Back to where they were: an explicit local page (e.g. the comparison they were opening), else the referer.
+        local = next_page if next_page.startswith("/") and not next_page.startswith("//") and "\\" not in next_page else ""
+        response = go(local or urlparse(request.headers.get("referer") or "").path or "/")
         if name.strip():
             response.set_cookie("reviewer", name.strip(), httponly=True, samesite="lax")
         return response
@@ -153,8 +155,9 @@ def create_app(audit_path: Path, runs_dir: Path, csv_path: Path,
         s = state(request)
         picked = list(dict.fromkeys(ids))
         ranked = {r["applicant_id"] for r in s["current"]}
-        if not s["reviewer"]:
-            return refuse(s, NO_NAME, "/shortlist")
+        if not s["reviewer"]:  # comparisons are logged with who looked, so ask here and then carry on
+            here = request.url.path + (f"?{request.url.query}" if request.url.query else "")
+            return render("compare_name.html", s, next_page=here, ids=picked)
         if not 2 <= len(picked) <= 4:
             return refuse(s, f"Compare 2 to 4 applicants (you picked {len(picked)}).", "/shortlist")
         if outside := [i for i in picked if i not in ranked]:
