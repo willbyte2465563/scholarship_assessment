@@ -1,0 +1,27 @@
+# Decisions
+
+- **DuckDB profiling first**: learn the data from counts and checks instead of reading rows. The same script works on 60 rows or 600,000 and shows what's missing, duplicated or odd before anything is modeled.
+- **Scoring as a separate batch step**: scoring costs money and takes minutes, so it runs as a command with a dry run, a cost estimate and crash resume. The web UI is only for human review and never calls the model.
+- **Model scores, code does the math**: the model returns five criterion scores with evidence. Weighted totals, ranking and ties are computed in code, so they're exact and repeatable and the model can't anchor on other applicants.
+- **One applicant per call**: scoring several together would let their order or a comparison between them affect the scores. It costs more calls, and that's worth it.
+- **No identity to the model**: name, location, high school, school type and submission time are removed, and the applicant's own name is stripped from free text. Rank is sent as a percentile, because class size hints at the school.
+- **Pronouns neutralized in the recommendation only**: essays mention other people (siblings, a tutoring student), and swapping their pronouns garbles the story. The recommendation is the part written about the applicant.
+- **Athletics kept in the text, ignored by the prompt**: the same fields also describe jobs and caregiving, which matter, and scrubbing them with regex is brittle. The prompt says not to score athletics, and an eval checks a sports mention doesn't move the score.
+- **Test scores kept, weighed in context**: the rubric doesn't name them and they track income, but readiness needs some academic signal. The prompt weighs them against what the applicant had available.
+- **Input data never modified**: problems become holds or flags. Nothing is filled in, merged or silently cleaned, so every issue stays visible to a person.
+- **Hold only when a criterion can't be judged**: no essay, no need statement, or no GPA and no rank means a person decides first. A missing test score or recommendation is flagged and scored with lower confidence instead of blocking.
+- **Duplicates go to a person**: when the same person applies twice with slightly different details, picking the "real" copy is a judgment call, so both copies are held side by side.
+- **Instruction-like text flagged, still scored**: one recommendation told the scorer to rank the applicant first. Holding the applicant would punish them for text they may not have written, so they're scored normally, the reviewer sees the flag, and an eval checks it had no effect.
+- **Blocked or failed model call means a hold**: a safety filter could refuse an essay about abuse or violence. That applicant goes to the review queue instead of silently dropping out of the ranking.
+- **Evidence checked in code**: every quote the model cites must appear in the application, or the reply is rejected and retried. A rationale that cites things that aren't there can't be trusted.
+- **3 runs per applicant, median**: the model isn't deterministic. Three runs smooth out one-off swings, and the spread between them is kept as a measure of uncertainty.
+- **Shortlist sized by measured noise**: the top 10 plus everyone within the 90th-percentile run-to-run spread of #10, which gave 15. Cutting inside that band would be decided by randomness, not merit.
+- **Ties never broken**: equal totals share a rank. The rubric gives ties at the cutoff to the committee, so the system marks them instead of picking.
+- **Counterfactual evals**: take any applicant, change one thing (name, writing quality, a sports or prestige mention, an injected instruction, need), and check the scores move only when they should. They work on any data, not just this file.
+- **One change per prompt version, fixed baseline**: every version is tested on the same seed, sample and cached rewrites, so it's clear what fixed what. That's how a prestige mention lowering need was found, confirmed over 4 runs, and fixed in score_v2.
+- **Work hours count toward readiness**: the rubric says to read grades against what else the student was carrying, so the same grades while working 20 hours a week count for more.
+- **Append-only, hash-chained audit log as the only store**: every model call and human action is logged, and each entry hashes the one before it, so any edit or deletion is detectable. The UI's state is rebuilt from the log.
+- **No raw personal data in the log**: a log that never deletes anything shouldn't hold personal data. It keeps hashes, versions and redacted text, and raw data stays in data/raw.
+- **Superseded results kept**: when a ranking was wrong (a cache bug), the corrected one was added and the bad one left in place. Mistakes are on the record, not erased.
+- **Blind review until the final 3**: removing names from the model is pointless if the reviewer sees them at the final pick. Names are shown only after the decision is recorded, and only for those three.
+- **Overrides need a reason, model score kept**: a reviewer can change any criterion score, but the model's score stays alongside, so the record shows where a human disagreed and why.
